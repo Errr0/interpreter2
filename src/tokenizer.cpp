@@ -46,8 +46,8 @@ enum TokenType {
     BACKSLASH,
     DOUBLESLASH,
     HASHTAG,
-    SPACE
-    
+    SPACE,
+    DATATYPE
 };
 
 std::string displayTokenType(TokenType token) {
@@ -122,11 +122,12 @@ std::string display(TokenType token) {
         case LESSEQUAL: return "<=";
         case GREATERTHAN: return ">";
         case GREATEREQUAL: return ">=";
-        case NUMBER: return "number";
-        case IDENTIFIER: return "identifier";
-        case INT: return "int";
-        case FLOAT: return "float";
-        case KEYWORD: return "keyword";
+        case NUMBER: return "num";
+        case IDENTIFIER: return "i";
+        case INT: return "i";
+        case FLOAT: return "f";
+        case KEYWORD: return "kw";
+        case DATATYPE: return "dt";
         case BRACKETOPEN: return "(";
         case BRACKETCLOSE: return ")";
         case SQUAREBRACKETOPEN: return "[";
@@ -241,6 +242,33 @@ class Token{
     }
 };
 
+void print(std::vector<std::vector<Token>> &tokens){
+    std::cout << "|SCOPES = "<< tokens.size() <<"|\n";
+    for(std::vector<Token> s : tokens){
+    std::cout << "|SCOPE|";
+        for(Token token : s){
+            
+            //if(token.type == SCOPE || token.type == BRACKETS){
+                //std::cout <<" "<<token.value << "-"<< display(token.type) <<" ";
+            //}else
+            if(token.type == IDENTIFIER || token.type == NUMBER || token.type == INT || token.type == FLOAT || token.type == KEYWORD || token.type == DATATYPE){
+                std::cout <<token.value;
+            } else{
+                std::cout << display(token.type);
+            }
+        }
+        std::cout << "|\n";
+        }
+} 
+
+void addKeyword(std::string str, std::vector<Token> &tokens){
+    if(dataTypes.find(str) != dataTypes.end()){
+        tokens.push_back(Token(str,DATATYPE));
+    } else {
+        tokens.push_back(Token(str,KEYWORD));
+    }
+}
+
 void addSpaceToken(std::vector<Token> &tokens){
     if(!tokens.empty()){
         if(tokens.back().type == SPACE){
@@ -277,7 +305,10 @@ void addNumberToken(std::string str, std::vector<Token> &tokens){
 void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
-            if(str=="~SPACE"){
+            if(str=="~END"){
+                if(tokens.back().type != END)
+                    tokens.push_back(Token());
+            } else if(str=="~SPACE"){
                 addSpaceToken(tokens);
             } else{
                 tokens.push_back(Token("",locked[str]));
@@ -313,126 +344,6 @@ void deconstructStatement(std::string &str, std::vector<Token> &arr){
     tokenize(words, arr);
 }
 
-
-std::string interpret(std::vector<Token> &tokens){
-    Token temp;
-    while(!tokens.empty()){
-        switch(tokens[0].type) {
-        case END:
-            return;
-            break;
-        //case NUMBER:
-            //break;
-        case INT:
-            break;
-        case FLOAT:
-            break;
-        case IDENTIFIER:
-            break;
-        case KEYWORD:
-            if(tokens[0].value == "include"){
-
-            } else if(dataTypes.find(tokens[0].value) != dataTypes.end()){
-                if(tokens[1].type == IDENTIFIER){
-
-                } else if(tokens[1].type == BRACKETOPEN){
-                    
-                } else{
-                    return "type";
-                }
-            } else if(tokens[0].value == ""){
-
-            } else if(tokens[0].value == ""){
-                
-            } else if(tokens[0].value == ""){
-                
-            } else if(tokens[0].value == ""){
-                
-            }
-            break;
-        case ASSIGN:
-            break;
-        case PLUS:
-            break;
-        case MINUS:
-            break;
-        case ASTERISK:
-            break;
-        case SLASH:
-            break;
-        case MODULO:
-            break;
-        case INCREMENT:
-            break;
-        case DECREMENT:
-            break;
-        case ADDASSIGN:
-            break;
-        case SUBASSIGN:
-            break;
-        case MULASSIGN:
-            break;
-        case DIVASSIGN:
-            break;
-        case MODASSIGN:
-            break;
-        case NOT:
-            break;
-        case AND:
-            break;
-        case OR:
-            break;
-        case EQUAL:
-            break;
-        case NOTEQUAL:
-            break;
-        case LESSTHAN:
-            break;
-        case LESSEQUAL:
-            break;
-        case GREATERTHAN:
-            break;
-        case GREATEREQUAL:
-            break;
-        case BRACKETOPEN:
-            break;
-        case BRACKETCLOSE:
-            break;
-        case SQUAREBRACKETOPEN:
-            break;
-        case SQUAREBRACKETCLOSE:
-            break;
-        case CURLYBRACKETOPEN:
-            break;
-        case CURLYBRACKETCLOSE:
-            break;
-        case APOSTROPHE:
-            break;
-        case QUOTATION:
-            break;
-        case QUESTIONMARK:
-            break;
-        case COMMA:
-            break;
-        case COLON:
-            break;
-        case DOT:
-            break;
-        case BACKSLASH:
-            break;
-        case DOUBLESLASH:
-            break;
-        case HASHTAG:
-            break;
-        case SPACE:
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-
 void parse(std::string &str, std::vector<Token> &tokens){
     std::vector<std::string> statements;
     replace(str, "\n", " ");
@@ -441,7 +352,7 @@ void parse(std::string &str, std::vector<Token> &tokens){
         std::vector<std::string> splittedStatement;
         split(statement,splittedStatement);
         deconstructStatement(statement, tokens);
-        interpret(tokens);
+        //interpret(tokens);
     }
 }
 
