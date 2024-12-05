@@ -327,7 +327,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     }
 }
 
-void deconstructStatement(std::string &str, std::vector<Token> &arr){
+void lexer(std::string &str, std::vector<Token> &arr){//deconstructStatement
     std::vector<std::string> words;
     split(str,words);
     for (std::string& symbol : symbols) {
@@ -344,14 +344,14 @@ void deconstructStatement(std::string &str, std::vector<Token> &arr){
     tokenize(words, arr);
 }
 
-void parse(std::string &str, std::vector<Token> &tokens){
+void tokenizer(std::string &str, std::vector<Token> &tokens){
     std::vector<std::string> statements;
     replace(str, "\n", " ");
     split(str, statements, ";", true, true, true);
     for (std::string& statement : statements) {
         std::vector<std::string> splittedStatement;
         split(statement,splittedStatement);
-        deconstructStatement(statement, tokens);
+        lexer(statement, tokens);
         //interpret(tokens);
     }
 }
