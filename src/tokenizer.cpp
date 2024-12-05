@@ -4,26 +4,31 @@
 
 enum TokenType {
     END,
-    ASSIGN,
-    PLUS,
-    MINUS,
-    ASTERISK,
-    SLASH,
-    MODULO,
+
+    ARITMETIC_OPERATOR,
+        PLUS,//ARITMETIC_OPERATOR
+        MINUS,
+        ASTERISK,
+        SLASH,
+        MODULO,//ARITMETIC_OPERATOR
     INCREMENT,   // ++
     DECREMENT,   // --
-    ADDASSIGN,  // +=
-    SUBASSIGN,  // -=
-    MULASSIGN,  // *=
-    DIVASSIGN,  // /=
-    MODASSIGN,  // %=
-    NOT,
-    AND,
-    OR,
-    EQUAL,
-    NOTEQUAL,
-    LESSTHAN,
-    LESSEQUAL,
+
+    ASSIGN, 
+        ADDASSIGN,  // +=
+        SUBASSIGN,  // -=
+        MULASSIGN,  // *=
+        DIVASSIGN,  // /=
+        MODASSIGN,  // %=
+
+    LOGICAL_OPERATOR,
+        NOT,
+        AND,
+        OR,
+        EQUAL,
+        NOTEQUAL,
+        LESSTHAN,
+        LESSEQUAL,
     GREATERTHAN,
     GREATEREQUAL,
     NUMBER,
@@ -231,6 +236,18 @@ std::array<std::string, 39> symbols = {
     ".",
     "\\",
     "#"};
+
+class Token{
+    public:
+    std::string value;
+    enum TokenType type;
+    unsigned int importance;
+    Token(std::string value = ";",enum TokenType type = END, unsigned int importance = 0){
+        this -> value = value;
+        this -> type = type;
+        this -> importance = importance;
+    }
+};
 
 class Token{
     public:

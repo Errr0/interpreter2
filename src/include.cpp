@@ -8,3 +8,5 @@
 #include <regex>
 #include <algorithm>
 #include <set>
+#include <memory>
+#include <stack>
