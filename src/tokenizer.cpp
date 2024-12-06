@@ -1,299 +1,6 @@
-#include "include.cpp"
-#include "checks.cpp"
+// #include "data.cpp"
+// #include "checks.cpp"
 #include "strings.cpp"
-
-enum TokenType {
-    END,
-
-    ARITMETIC_OPERATOR,
-        PLUS,//ARITMETIC_OPERATOR
-        MINUS,
-        ASTERISK,
-        SLASH,
-        MODULO,//ARITMETIC_OPERATOR
-    INCREMENT,   // ++
-    DECREMENT,   // --
-
-    ASSIGN, 
-        ADDASSIGN,  // +=
-        SUBASSIGN,  // -=
-        MULASSIGN,  // *=
-        DIVASSIGN,  // /=
-        MODASSIGN,  // %=
-
-    LOGICAL_OPERATOR,
-        NOT,
-        AND,
-        OR,
-        EQUAL,
-        NOTEQUAL,
-        LESSTHAN,
-        LESSEQUAL,
-    GREATERTHAN,
-    GREATEREQUAL,
-    NUMBER,
-    INT,
-    FLOAT,
-    IDENTIFIER,
-    KEYWORD,
-    BRACKETOPEN,
-    BRACKETCLOSE,
-    SQUAREBRACKETOPEN,
-    SQUAREBRACKETCLOSE,
-    CURLYBRACKETOPEN,
-    CURLYBRACKETCLOSE,
-    APOSTROPHE,
-    QUOTATION,
-    QUESTIONMARK,
-    COMMA,
-    COLON,
-    DOT,
-    BACKSLASH,
-    DOUBLESLASH,
-    HASHTAG,
-    SPACE,
-    DATATYPE
-};
-
-std::string displayTokenType(TokenType token) {
-    switch (token) {
-        case END: return "END";
-        case ASSIGN: return "ASSIGN";
-        case PLUS: return "PLUS";
-        case MINUS: return "MINUS";
-        case ASTERISK: return "ASTERISK";
-        case SLASH: return "SLASH";
-        case MODULO: return "MODULO";
-        case INCREMENT: return "INCREMENT";
-        case DECREMENT: return "DECREMENT";
-        case ADDASSIGN: return "ADDASSIGN";
-        case SUBASSIGN: return "SUBASSIGN";
-        case MULASSIGN: return "MULASSIGN";
-        case DIVASSIGN: return "DIVASSIGN";
-        case MODASSIGN: return "MODASSIGN";
-        case NOT: return "NOT";
-        case AND: return "AND";
-        case OR: return "OR";
-        case EQUAL: return "EQUAL";
-        case NOTEQUAL: return "NOTEQUAL";
-        case LESSTHAN: return "LESSTHAN";
-        case LESSEQUAL: return "LESSEQUAL";
-        case GREATERTHAN: return "GREATERTHAN";
-        case GREATEREQUAL: return "GREATEREQUAL";
-        case NUMBER: return "NUMBER";
-        case IDENTIFIER: return "IDENTIFIER";
-        case BRACKETOPEN: return "BRACKETOPEN";
-        case BRACKETCLOSE: return "BRACKETCLOSE";
-        case SQUAREBRACKETOPEN: return "SQUAREBRACKETOPEN";
-        case SQUAREBRACKETCLOSE: return "SQUAREBRACKETCLOSE";
-        case CURLYBRACKETOPEN: return "CURLYBRACKETOPEN";
-        case CURLYBRACKETCLOSE: return "CURLYBRACKETCLOSE";
-        case APOSTROPHE: return "APOSTROPHE";
-        case QUOTATION: return "QUOTATION";
-        case QUESTIONMARK: return "QUESTIONMARK";
-        case COMMA: return "COMMA";
-        case COLON: return "COLON";
-        case DOT: return "DOT";
-        case BACKSLASH: return "BACKSLASH";
-        case DOUBLESLASH: return "DOUBLESLASH";
-        case HASHTAG: return "HASHTAG";
-        case SPACE: return "SPACE";
-        default: return "UNKNOWN";
-    }
-}
-
-std::string display(TokenType token) {
-    switch (token) {
-        case END: return ";";
-        case ASSIGN: return "=";
-        case PLUS: return "+";
-        case MINUS: return "-";
-        case ASTERISK: return "*";
-        case SLASH: return "/";
-        case MODULO: return "%";
-        case INCREMENT: return "++";
-        case DECREMENT: return "--";
-        case ADDASSIGN: return "+=";
-        case SUBASSIGN: return "-=";
-        case MULASSIGN: return "*=";
-        case DIVASSIGN: return "/=";
-        case MODASSIGN: return "%=";
-        case NOT: return "!";
-        case AND: return "&&";
-        case OR: return "||";
-        case EQUAL: return "==";
-        case NOTEQUAL: return "!=";
-        case LESSTHAN: return "<";
-        case LESSEQUAL: return "<=";
-        case GREATERTHAN: return ">";
-        case GREATEREQUAL: return ">=";
-        case NUMBER: return "num";
-        case IDENTIFIER: return "i";
-        case INT: return "i";
-        case FLOAT: return "f";
-        case KEYWORD: return "kw";
-        case DATATYPE: return "dt";
-        case BRACKETOPEN: return "(";
-        case BRACKETCLOSE: return ")";
-        case SQUAREBRACKETOPEN: return "[";
-        case SQUAREBRACKETCLOSE: return "]";
-        case CURLYBRACKETOPEN: return "{";
-        case CURLYBRACKETCLOSE: return "}";
-        case APOSTROPHE: return "'";
-        case QUOTATION: return "\"";
-        case QUESTIONMARK: return "?";
-        case COMMA: return ",";
-        case COLON: return ":";
-        case DOT: return ".";
-        case BACKSLASH: return "\\";
-        case DOUBLESLASH: return "//";
-        case HASHTAG: return "#";
-        case SPACE: return " ";
-        default: return "UNKNOWN";
-    }
-}
-
-
-std::map<std::string, TokenType> locked = {
-    {"~END", END},
-    {"~ASSIGN", ASSIGN},
-    {"~PLUS", PLUS},
-    {"~MINUS", MINUS},
-    {"~ASTERISK", ASTERISK},
-    {"~SLASH", SLASH},
-    {"~MODULO", MODULO},
-    {"~INCREMENT", INCREMENT},
-    {"~DECREMENT", DECREMENT},
-    {"~ADDASSIGN", ADDASSIGN},
-    {"~SUBASSIGN", SUBASSIGN},
-    {"~MULASSIGN", MULASSIGN},
-    {"~DIVASSIGN", DIVASSIGN},
-    {"~MODASSIGN", MODASSIGN},
-    {"~NOT", NOT},
-    {"~AND", AND},
-    {"~OR", OR},
-    {"~EQUAL", EQUAL},
-    {"~NOTEQUAL", NOTEQUAL},
-    {"~LESSTHAN", LESSTHAN},
-    {"~LESSEQUAL", LESSEQUAL},
-    {"~GREATERTHAN", GREATERTHAN},
-    {"~GREATEREQUAL", GREATEREQUAL},
-    {"~BRACKETOPEN", BRACKETOPEN},
-    {"~BRACKETCLOSE", BRACKETCLOSE},
-    {"~SQUAREBRACKETOPEN", SQUAREBRACKETOPEN},
-    {"~SQUAREBRACKETCLOSE", SQUAREBRACKETCLOSE},
-    {"~CURLYBRACKETOPEN", CURLYBRACKETOPEN},
-    {"~CURLYBRACKETCLOSE", CURLYBRACKETCLOSE},
-    {"~APOSTROPHE", APOSTROPHE},
-    {"~QUOTATION", QUOTATION},
-    {"~QUESTIONMARK", QUESTIONMARK},
-    {"~COMMA", COMMA},
-    {"~COLON", COLON},
-    {"~DOT", DOT},
-    {"~BACKSLASH", BACKSLASH},
-    {"~DOUBLESLASH", DOUBLESLASH},
-    {"~HASHTAG", HASHTAG},
-    {"~SPACE", SPACE}
-};
-
-std::array<std::string, 39> symbols = {
-    "==",
-    "!=",
-    "<=",
-    ">=",
-    "&&",
-    "||",
-    "++",
-    "--",
-    "+=",
-    "-=",
-    "*=",
-    "/=",
-    "%=",
-    "//",
-    ";",
-    " ",
-    "=",
-    "+",
-    "*",
-    "/",
-    "!",
-    "-",
-    "<",
-    ">",
-    "%",
-    "(",
-    ")",
-    "[",
-    "]",
-    "{",
-    "}",
-    "'",
-    "\"",
-    "?",
-    ",",
-    ":",
-    ".",
-    "\\",
-    "#"};
-
-class Token{
-    public:
-    std::string value;
-    enum TokenType type;
-    unsigned int importance;
-    Token(std::string value = ";",enum TokenType type = END, unsigned int importance = 0){
-        this -> value = value;
-        this -> type = type;
-        this -> importance = importance;
-    }
-};
-
-class Token{
-    public:
-    std::string value;
-    enum TokenType type;
-    Token(std::string value = ";",enum TokenType type = END){
-        this -> value = value;
-        this -> type = type;
-    }
-};
-
-void print(std::vector<std::vector<Token>> &tokens){
-    std::cout << "|SCOPES = "<< tokens.size() <<"|\n";
-    for(std::vector<Token> s : tokens){
-    std::cout << "|SCOPE|";
-        for(Token token : s){
-            
-            //if(token.type == SCOPE || token.type == BRACKETS){
-                //std::cout <<" "<<token.value << "-"<< display(token.type) <<" ";
-            //}else
-            if(token.type == IDENTIFIER || token.type == NUMBER || token.type == INT || token.type == FLOAT || token.type == KEYWORD || token.type == DATATYPE){
-                std::cout <<token.value;
-            } else{
-                std::cout << display(token.type);
-            }
-        }
-        std::cout << "|\n";
-        }
-} 
-
-void addKeyword(std::string str, std::vector<Token> &tokens){
-    if(dataTypes.find(str) != dataTypes.end()){
-        tokens.push_back(Token(str,DATATYPE));
-    } else {
-        tokens.push_back(Token(str,KEYWORD));
-    }
-}
-
-void addSpaceToken(std::vector<Token> &tokens){
-    if(!tokens.empty()){
-        if(tokens.back().type == SPACE){
-            return;
-        }
-    }
-    tokens.push_back(Token("",SPACE));
-}
 
 void addNumberToken(std::string str, std::vector<Token> &tokens){
     if(tokens.size()>=2){
@@ -322,13 +29,14 @@ void addNumberToken(std::string str, std::vector<Token> &tokens){
 void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
-            if(str=="~END"){
-                if(tokens.back().type != END)
-                    tokens.push_back(Token());
-            } else if(str=="~SPACE"){
-                addSpaceToken(tokens);
+            if(str=="~INCREMENT"){
+                tokens.push_back(locked["~ADDASSIGN"]);
+                tokens.push_back(Token("1", INT));
+            } else if(str=="~DECREMENT"){
+                tokens.push_back(locked["~SUBASSIGN"]);
+                tokens.push_back(Token("1", INT));
             } else{
-                tokens.push_back(Token("",locked[str]));
+                tokens.push_back(locked[str]);
             }
         } else if(isNumber(str)){
             addNumberToken(str, tokens);
@@ -338,13 +46,11 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
             } else {
                 tokens.push_back(Token(str,IDENTIFIER));
             }
-        } else{
-            //std::cout <<" |no valid token: "<< str <<"| ";
         }
     }
 }
 
-void lexer(std::string &str, std::vector<Token> &arr){//deconstructStatement
+void lexer(std::string &str, std::vector<Token> &arr){
     std::vector<std::string> words;
     split(str,words);
     for (std::string& symbol : symbols) {
@@ -353,35 +59,20 @@ void lexer(std::string &str, std::vector<Token> &arr){//deconstructStatement
             if(substr.find(symbol) != std::string::npos){
                 split(substr, temp, symbol, true, true, true);
             } else {
-                temp.push_back(substr); // Keep unchanged if no symbol found
+                temp.push_back(substr);
             }
         }
-        words = std::move(temp); // Replace help with the updated vector
+        words = std::move(temp);
     }
     tokenize(words, arr);
 }
 
 void tokenizer(std::string &str, std::vector<Token> &tokens){
     std::vector<std::string> statements;
-    replace(str, "\n", " ");
-    split(str, statements, ";", true, true, true);
+    split(str, statements, "\n", true, true, true);
     for (std::string& statement : statements) {
         std::vector<std::string> splittedStatement;
         split(statement,splittedStatement);
         lexer(statement, tokens);
-        //interpret(tokens);
     }
-}
-
-bool readfile(std::string filename, std::string &str){
-    std::fstream file(filename, std::ios::in);
-    if (!file) {
-        std::cerr << "Error opening file!" << std::endl;
-        return 0;
-    }
-    std::ostringstream buffer;
-    buffer << file.rdbuf();
-    str = buffer.str();
-    file.close();
-    return 1;
 }

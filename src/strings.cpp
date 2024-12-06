@@ -1,46 +1,5 @@
-#include "include.cpp"
+#include "checks.cpp"
 
-std::map<std::string, std::string> lockSymbol = {
-    {";", "~END"},
-    {"=", "~ASSIGN"},
-    {"+", "~PLUS"},
-    {"-", "~MINUS"},
-    {"*", "~ASTERISK"},
-    {"/", "~SLASH"},
-    {"%", "~MODULO"},
-    {"++", "~INCREMENT"},
-    {"--", "~DECREMENT"},
-    {"+=", "~ADDASSIGN"},
-    {"-=", "~SUBASSIGN"},
-    {"*=", "~MULASSIGN"},
-    {"/=", "~DIVASSIGN"},
-    {"%=", "~MODASSIGN"},
-    {"!", "~NOT"},
-    {"&&", "~AND"},
-    {"||", "~OR"},
-    {"==", "~EQUAL"},
-    {"!=", "~NOTEQUAL"},
-    {"<", "~LESSTHAN"},
-    {"<=", "~LESSEQUAL"},
-    {">", "~GREATERTHAN"},
-    {">=", "~GREATEREQUAL"},
-    {"(", "~BRACKETOPEN"},
-    {")", "~BRACKETCLOSE"},
-    {"[", "~SQUAREBRACKETOPEN"},
-    {"]", "~SQUAREBRACKETCLOSE"},
-    {"{", "~CURLYBRACKETOPEN"},
-    {"}", "~CURLYBRACKETCLOSE"},
-    {"'", "~APOSTROPHE"},
-    {"\"", "~QUOTATION"},
-    {"?", "~QUESTIONMARK"},
-    {",", "~COMMA"},
-    {":", "~COLON"},
-    {".", "~DOT"},
-    {"\\", "~BACKSLASH"},
-    {"//", "~DOUBLESLASH"},
-    {"#", "~HASHTAG"},
-    {" ", "~SPACE"}
-};
 
 int numberOfOcurrences(std::string str, std::string substr){
     int count = 0;

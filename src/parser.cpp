@@ -1,8 +1,8 @@
-#include "include.cpp"
-#include "checks.cpp"
-#include "strings.cpp"
+// #include "data.cpp"
+// #include "checks.cpp"
+// #include "strings.cpp"
 #include "tokenizer.cpp"
-
+ 
 class node{
     public:
     Token value;
