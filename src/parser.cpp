@@ -2,7 +2,7 @@
 // #include "checks.cpp"
 // #include "strings.cpp"
 #include "tokenizer.cpp"
- 
+  
 class node{
     public:
     Token value;

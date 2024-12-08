@@ -1,5 +1,5 @@
 #include "data.cpp"
-
+ 
 bool isInt(std::string str){
     std::regex regex ("[-]?[0-9]+");
     return std::regex_match(str, regex);

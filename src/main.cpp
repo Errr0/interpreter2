@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
     if(!readfile(argv[1], code)) return 2;
     std::vector<Token> tokens;
     tokenizer(code,tokens);
-    //print(tokens);
+    print(tokens);
 
 
     //parse(tokens);

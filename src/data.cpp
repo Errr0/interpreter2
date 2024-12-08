@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 #include <map>
-#include <regex>
+#include <regex> 
 #include <algorithm>
 #include <set>
 #include <memory>
@@ -36,41 +36,41 @@ enum TokenType {
     DOUBLESLASH,
     HASHTAG,
 
-    //ARITMETIC_OPERATOR,
-        PLUS,//ARITMETIC_OPERATOR
-        MINUS,
-        ASTERISK,
-        SLASH,
-        MODULO,//ARITMETIC_OPERATOR
-    //ASSIGN, 
-        ADDASSIGN,  // +=
-        SUBASSIGN,  // -=
-        MULASSIGN,  // *=
-        DIVASSIGN,  // /=
-        MODASSIGN,  // %=
-    //LOGICAL_OPERATOR,
-        NOT,
-        AND,
-        OR,
-        EQUAL,
-        NOTEQUAL,
-        LESSTHAN,
-        LESSEQUAL,
-        GREATERTHAN,
-        GREATEREQUAL,
-    NUMBER,//to delete
-    // BRACKET_OPEN,
-    // BRACKET_CLOSE,
-        BRACKETOPEN,
-        BRACKETCLOSE,
-        SQUAREBRACKETOPEN,
-        SQUAREBRACKETCLOSE,
-        CURLYBRACKETOPEN,
-        CURLYBRACKETCLOSE,
-    // QUOTATION,
-        APOSTROPHE,
-    SPACE,
-        //DATATYPE,
+    // //ARITMETIC_OPERATOR,
+    //     PLUS,//ARITMETIC_OPERATOR
+    //     MINUS,
+    //     ASTERISK,
+    //     SLASH,
+    //     MODULO,//ARITMETIC_OPERATOR
+    // //ASSIGN, 
+    //     ADDASSIGN,  // +=
+    //     SUBASSIGN,  // -=
+    //     MULASSIGN,  // *=
+    //     DIVASSIGN,  // /=
+    //     MODASSIGN,  // %=
+    // //LOGICAL_OPERATOR,
+    //     NOT,
+    //     AND,
+    //     OR,
+    //     EQUAL,
+    //     NOTEQUAL,
+    //     LESSTHAN,
+    //     LESSEQUAL,
+    //     GREATERTHAN,
+    //     GREATEREQUAL,
+    // NUMBER,//to delete
+    // // BRACKET_OPEN,
+    // // BRACKET_CLOSE,
+    //     BRACKETOPEN,
+    //     BRACKETCLOSE,
+    //     SQUAREBRACKETOPEN,
+    //     SQUAREBRACKETCLOSE,
+    //     CURLYBRACKETOPEN,
+    //     CURLYBRACKETCLOSE,
+    // // QUOTATION,
+    //     APOSTROPHE,
+    // SPACE,
+    //     //DATATYPE,
 };
 
 class Token{
