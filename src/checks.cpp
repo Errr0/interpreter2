@@ -1,4 +1,4 @@
-#include "data.cpp" 
+#include "data.cpp"
  
 bool isInt(std::string str){
     std::regex regex ("[-]?[0-9]+");

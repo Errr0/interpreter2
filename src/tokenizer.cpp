@@ -1,4 +1,4 @@
-#include "strings.cpp" 
+#include "strings.cpp"
 
 void addNumberToken(std::string str, std::vector<Token> &tokens){
     if(tokens.size()>=2){
@@ -6,13 +6,13 @@ void addNumberToken(std::string str, std::vector<Token> &tokens){
             tokens.pop_back();
             std::string temp = tokens.back().value;
             tokens.pop_back();
-            if(!tokens.empty()){
-                //if(tokens.back().type == ARITMETIC_OPERATOR && tokens.back().value == "-"){
-                    //tokens.pop_back();
-                    //tokens.push_back(Token("-"+temp+"."+str,FLOAT));
-            //return;
-                //}
-            }
+            // if(!tokens.empty()){
+            //     //if(tokens.back().type == ARITMETIC_OPERATOR && tokens.back().value == "-"){
+            //         //tokens.pop_back();
+            //         //tokens.push_back(Token("-"+temp+"."+str,FLOAT));
+            // //return;
+            //     //}
+            // }
             tokens.push_back(Token(temp+"."+str,FLOAT));
             return;
         }

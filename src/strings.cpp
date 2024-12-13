@@ -1,4 +1,4 @@
-#include "checks.cpp"  
+#include "checks.cpp"
 
 
 int numberOfOcurrences(std::string str, std::string substr){

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <fstream>
+#include <fstream> 
 #include <sstream>
 #include <string>
 #include <vector> 
@@ -10,7 +10,6 @@
 #include <set>
 #include <memory>
 #include <stack>
-//#include "include.cpp"
 
 enum TokenType {
     END,
@@ -34,43 +33,7 @@ enum TokenType {
     DOT,
     BACKSLASH,
     DOUBLESLASH,
-    HASHTAG,
-
-    // //ARITMETIC_OPERATOR,
-    //     PLUS,//ARITMETIC_OPERATOR
-    //     MINUS,
-    //     ASTERISK,
-    //     SLASH,
-    //     MODULO,//ARITMETIC_OPERATOR
-    // //ASSIGN, 
-    //     ADDASSIGN,  // +=
-    //     SUBASSIGN,  // -=
-    //     MULASSIGN,  // *=
-    //     DIVASSIGN,  // /=
-    //     MODASSIGN,  // %=
-    // //LOGICAL_OPERATOR,
-    //     NOT,
-    //     AND,
-    //     OR,
-    //     EQUAL,
-    //     NOTEQUAL,
-    //     LESSTHAN,
-    //     LESSEQUAL,
-    //     GREATERTHAN,
-    //     GREATEREQUAL,
-    // NUMBER,//to delete
-    // // BRACKET_OPEN,
-    // // BRACKET_CLOSE,
-    //     BRACKETOPEN,
-    //     BRACKETCLOSE,
-    //     SQUAREBRACKETOPEN,
-    //     SQUAREBRACKETCLOSE,
-    //     CURLYBRACKETOPEN,
-    //     CURLYBRACKETCLOSE,
-    // // QUOTATION,
-    //     APOSTROPHE,
-    // SPACE,
-    //     //DATATYPE,
+    HASHTAG
 };
 
 class Token{
@@ -139,24 +102,24 @@ std::string displayType(TokenType token) {
     }
 }
 
-std::array<unsigned int,3> values = {3,2,1};
+std::array<unsigned int,3> values = {0,1,2};
 
 std::map<std::string, Token> locked = {
     {"~END", Token(";", END)},
     {"~ENDLINE", Token("\n", ENDLINE)},
 
-    {"~ASSIGN", Token("=", ASSIGN, values[0])},
-    {"~ADDASSIGN", Token("+=", ASSIGN, values[0])},
-    {"~SUBASSIGN", Token("-=", ASSIGN, values[0])},
-    {"~MULASSIGN", Token("*=", ASSIGN, values[0])},
-    {"~DIVASSIGN", Token("/=", ASSIGN, values[0])},
-    {"~MODASSIGN", Token("%=", ASSIGN, values[0])},
+    {"~ASSIGN", Token("=", ASSIGN, values[3])},
+    {"~ADDASSIGN", Token("+=", ASSIGN, values[3])},
+    {"~SUBASSIGN", Token("-=", ASSIGN, values[3])},
+    {"~MULASSIGN", Token("*=", ASSIGN, values[3])},
+    {"~DIVASSIGN", Token("/=", ASSIGN, values[3])},
+    {"~MODASSIGN", Token("%=", ASSIGN, values[3])},
 
-    {"~PLUS", Token("+", ARITMETIC_OPERATOR, values[0])},
-    {"~MINUS", Token("-", ARITMETIC_OPERATOR, values[0])},
-    {"~ASTERISK", Token("*", ARITMETIC_OPERATOR, values[0])},
-    {"~SLASH", Token("/", ARITMETIC_OPERATOR, values[0])},
-    {"~MODULO", Token("%", ARITMETIC_OPERATOR, values[0])},
+    {"~PLUS", Token("+", ARITMETIC_OPERATOR, values[1])},
+    {"~MINUS", Token("-", ARITMETIC_OPERATOR, values[1])},
+    {"~ASTERISK", Token("*", ARITMETIC_OPERATOR, values[2])},
+    {"~SLASH", Token("/", ARITMETIC_OPERATOR, values[2])},
+    {"~MODULO", Token("%", ARITMETIC_OPERATOR, values[2])},
 
     {"~NOT", Token("!", LOGICAL_OPERATOR)},
     {"~AND", Token("&&", LOGICAL_OPERATOR)},

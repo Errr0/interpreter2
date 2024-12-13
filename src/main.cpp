@@ -1,10 +1,34 @@
-#include "parser.cpp"
+#include "parser.cpp" 
 
-void print(std::vector<Token> &tokens){
+void printTokens(std::vector<Token> &tokens){
     for(Token token : tokens){
         std::cout << token.value;// << displayType(token.type);// << token.weight;
     }
 }
+
+// void printTree(Node root){
+//     if(root.left) printTree((*root.left));
+//     std::cout<<root.token.value<<displayTokenType(root.token.type)<<"\n";
+//     if(root.right) printTree((*root.right));
+// }
+
+// void printTree(Node* root) {
+//     if (root == nullptr) return; // Base case: return if the root is null
+
+//     // Recursively print the left subtree
+//     if (root->left) {
+//         printTree(root->left);
+//     }
+
+//     // Print the value of the current node (token value and type)
+//     std::cout << root->token.value << displayTokenType(root->token.type) << "\n";
+
+//     // Recursively print the right subtree
+//     if (root->right) {
+//         printTree(root->right);
+//     }
+// }
+
 
 bool readfile(std::string filename, std::string &str){
     std::fstream file(filename, std::ios::in);
@@ -28,10 +52,9 @@ int main(int argc, char* argv[]){
     if(!readfile(argv[1], code)) return 2;
     std::vector<Token> tokens;
     tokenizer(code,tokens);
-    print(tokens);
-    Node ASTroot = parse(tokens);
-    std::cout<<ASTroot.value.value<<ASTroot.value.type;
-    printAST(&ASTroot);
+    //printTokens(tokens);
+    Node root = parse(tokens);
+    std::cout << "done\n";
     return 0;
 }
 
