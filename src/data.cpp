@@ -40,7 +40,7 @@ class Token{
     public:
     std::string value;
     enum TokenType type;
-    unsigned int weight;
+    int weight;
     Token(std::string value = ";",enum TokenType type = END, unsigned int weight = 0){
         this -> value = value;
         this -> type = type;
@@ -102,18 +102,18 @@ std::string displayType(TokenType token) {
     }
 }
 
-std::array<unsigned int,3> values = {0,1,2};
+std::array<int,5> values = {0,1,2,-1,-2};
 
 std::map<std::string, Token> locked = {
     {"~END", Token(";", END)},
     {"~ENDLINE", Token("\n", ENDLINE)},
 
-    {"~ASSIGN", Token("=", ASSIGN, values[3])},
-    {"~ADDASSIGN", Token("+=", ASSIGN, values[3])},
-    {"~SUBASSIGN", Token("-=", ASSIGN, values[3])},
-    {"~MULASSIGN", Token("*=", ASSIGN, values[3])},
-    {"~DIVASSIGN", Token("/=", ASSIGN, values[3])},
-    {"~MODASSIGN", Token("%=", ASSIGN, values[3])},
+    {"~ASSIGN", Token("=", ASSIGN, values[4])},
+    {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, values[3])},
+    {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, values[3])},
+    {"~MULASSIGN", Token("*", ARITMETIC_OPERATOR, values[3])},
+    {"~DIVASSIGN", Token("/", ARITMETIC_OPERATOR, values[3])},
+    {"~MODASSIGN", Token("%", ARITMETIC_OPERATOR, values[3])},
 
     {"~PLUS", Token("+", ARITMETIC_OPERATOR, values[1])},
     {"~MINUS", Token("-", ARITMETIC_OPERATOR, values[1])},
