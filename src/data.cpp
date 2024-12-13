@@ -33,7 +33,8 @@ enum TokenType {
     DOT,
     BACKSLASH,
     DOUBLESLASH,
-    HASHTAG
+    HASHTAG,
+    DATATYPE
 };
 
 class Token{

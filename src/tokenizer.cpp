@@ -23,6 +23,22 @@ void addAssign(Token token, std::vector<Token> &tokens){
     }
 }
 
+void addKeyword(std::string str, std::vector<Token> &tokens){
+    if(isDatatype(str)){
+        tokens.push_back(Token(str,DATATYPE));
+    } else{
+        tokens.push_back(Token(str,KEYWORD));
+    }
+}
+
+void addIdentifier(std::string str, std::vector<Token> &tokens){
+    if(isKeyword(str)){
+        addKeyword(str, tokens);    
+    } else {
+        tokens.push_back(Token(str,IDENTIFIER));
+    }
+}
+
 void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
@@ -50,11 +66,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
         } else if(isNumber(str)){
             addNumberToken(str, tokens);
         } else if(isIdentifier(str)){
-            if(isKeyword(str)){
-                tokens.push_back(Token(str,KEYWORD));
-            } else {
-                tokens.push_back(Token(str,IDENTIFIER));
-            }
+            addIdentifier(str, tokens);
         }
     }
 }

@@ -26,5 +26,17 @@ bool isChar(std::string str) {
 }
 
 bool isKeyword(std::string str) {
-    return (keywords.find(str)!=keywords.end());
+    return keywords.find(str)!=keywords.end();
 }
+
+bool isDatatype(std::string str){
+    return dataTypes.find(str)!=dataTypes.end();
+}
+
+// bool isLoop(std::string str){
+//     return dataTypes.find(str)!=dataTypes.end();
+// }
+
+// bool isIf(std::string str){
+//     return dataTypes.find(str)!=dataTypes.end();
+// }
