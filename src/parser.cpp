@@ -53,7 +53,7 @@ Node* parse(std::vector<Token>& tokens) {
     };
 
     for (const Token& token : tokens) {
-        if (token.type == BRACKET_OPEN) {
+        if (token.type == BRACKET_OPEN && token.value == "(") {
             operatorStack.push(token);
         } else if (token.type == INT || token.type == IDENTIFIER) {
             exprStack.push(new Node(token));
@@ -64,7 +64,7 @@ Node* parse(std::vector<Token>& tokens) {
                 processOperator();
             }
             operatorStack.push(token);
-        } else if (token.type == BRACKET_CLOSE) {
+        } else if (token.type == BRACKET_CLOSE && token.value == ")") {
             while (!operatorStack.empty() && operatorStack.top().type != BRACKET_OPEN) {
                 processOperator();
             }

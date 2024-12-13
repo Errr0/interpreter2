@@ -29,10 +29,13 @@ int main(int argc, char* argv[]){
     if(!readfile(argv[1], code)) return 2;
     std::vector<Token> tokens;
     tokenizer(code,tokens);
-    //printTokens(tokens);
+    printTokens(tokens);
+    //split tokens vec into statements
+    //parse each statement individualy
     Node* root = parse(tokens);
     printTree(root);
     std::cout << "done\n";
+    delete root;
     return 0;
 }
 

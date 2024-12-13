@@ -1,6 +1,5 @@
 #include "checks.cpp"
 
-
 int numberOfOcurrences(std::string str, std::string substr){
     int count = 0;
     size_t start = 0, end = str.find(substr);

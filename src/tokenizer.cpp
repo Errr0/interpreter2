@@ -42,7 +42,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 addAssign(locked["~DIVASSIGN"], tokens);
             } else if(str=="~MODASSIGN"){
                 addAssign(locked["~MODASSIGN"], tokens);
-            } else if(str=="~SPACE" || str=="~TAB"){
+            } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{
                 tokens.push_back(locked[str]);

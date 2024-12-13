@@ -70,15 +70,13 @@ std::string displayTokenType(TokenType token) {
         case DOUBLESLASH: return "DOUBLESLASH";
         case HASHTAG: return "HASHTAG";
         case WHITESPACE: return "WHITESPACE";
-        // case INCREMENT: return "INCREMENT";
-        // case DECREMENT: return "DECREMENT";
         default: return "UNKNOWN";
     }
 }
 
 std::string displayType(TokenType token) {
     switch (token) {
-        case END: return "";
+        case END: return "END";
         case ENDLINE: return "endl";
         case ASSIGN: return "";
         case ARITMETIC_OPERATOR: return "";
