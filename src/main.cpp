@@ -41,8 +41,7 @@ int main(int argc, char* argv[]){
     std::vector<std::vector<Token>> tokens;
     tokenizer(code,tokens);
     printTokens(tokens);
-    //split tokens vec into statements
-    //parse each statement individualy
+    interpreter(tokens);
     //Node* root = parse(tokens);
     //printTree(root);
     std::cout << "done\n";
