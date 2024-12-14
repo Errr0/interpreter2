@@ -55,7 +55,7 @@ Node* parse(std::vector<Token>& tokens) {
     for (const Token& token : tokens) {
         if (token.type == BRACKET_OPEN && token.value == "(") {
             operatorStack.push(token);
-        } else if (token.type == INT || token.type == IDENTIFIER) {
+        } else if (token.type == INT || token.type == IDENTIFIER/* || token.type == DECLARATION*/) {
             exprStack.push(new Node(token));
         } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
             while (!operatorStack.empty() && 

@@ -34,7 +34,8 @@ enum TokenType {
     BACKSLASH,
     DOUBLESLASH,
     HASHTAG,
-    DATATYPE
+    DATATYPE,
+    DECLARATION
 };
 
 class Token{
@@ -71,6 +72,7 @@ std::string displayTokenType(TokenType token) {
         case DOUBLESLASH: return "DOUBLESLASH";
         case HASHTAG: return "HASHTAG";
         case WHITESPACE: return "WHITESPACE";
+        case DECLARATION: return "DECLARATION";
         default: return "UNKNOWN";
     }
 }

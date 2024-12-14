@@ -1,8 +1,19 @@
-#include "parser.cpp" 
+//#include "parser.cpp" 
+#include "interpreter.cpp" 
 
-void printTokens(std::vector<Token> &tokens){
-    for(Token token : tokens){
-        std::cout << token.value << displayType(token.type)<< "|" << token.weight << "|";
+// void printTokens(std::vector<Token> &tokens){
+//     for(Token token : tokens){
+//         std::cout << token.value << displayType(token.type)<< "|" << token.weight << "|";
+//     }
+//     std::cout<<"\n";
+// }
+
+void printTokens(std::vector<std::vector<Token>> &statements){
+    for(std::vector<Token> tokens : statements){
+        for(Token token : tokens){
+            std::cout << token.value << displayType(token.type);//<< "|" << token.weight << "|";
+        }
+        std::cout << ";\n";
     }
     std::cout<<"\n";
 }
@@ -27,15 +38,15 @@ int main(int argc, char* argv[]){
     }
     std::string code;
     if(!readfile(argv[1], code)) return 2;
-    std::vector<Token> tokens;
+    std::vector<std::vector<Token>> tokens;
     tokenizer(code,tokens);
     printTokens(tokens);
     //split tokens vec into statements
     //parse each statement individualy
-    Node* root = parse(tokens);
-    printTree(root);
+    //Node* root = parse(tokens);
+    //printTree(root);
     std::cout << "done\n";
-    delete root;
+    //delete root;
     return 0;
 }
 

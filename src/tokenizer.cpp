@@ -35,6 +35,14 @@ void addIdentifier(std::string str, std::vector<Token> &tokens){
     if(isKeyword(str)){
         addKeyword(str, tokens);    
     } else {
+        // if(!tokens.empty()){
+        //     if(tokens.back().type == DATATYPE){
+        //         std::string type = tokens.back().value;
+        //         tokens.pop_back();
+        //         tokens.push_back(Token(type+" "+str, DECLARATION));
+        //         return;
+        //     }
+        // }
         tokens.push_back(Token(str,IDENTIFIER));
     }
 }
@@ -58,6 +66,12 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 addAssign(locked["~DIVASSIGN"], tokens);
             } else if(str=="~MODASSIGN"){
                 addAssign(locked["~MODASSIGN"], tokens);
+            // } else if(str=="~BRACKETOPEN"){
+            //     if(!tokens.empty()){
+            //         if(tokens.back().type == DECLARATION){
+            //             tokens[tokens.size()-1].value += "()"; 
+            //         }
+            //     }
             } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{
@@ -88,12 +102,22 @@ void lexer(std::string &str, std::vector<Token> &arr){
     tokenize(words, arr);
 }
 
-void tokenizer(std::string &str, std::vector<Token> &tokens){
+void print(std::vector<Token> &tokens){
+    for(Token token : tokens){
+        std::cout << token.value << displayType(token.type)<< "|" << token.weight << "|";
+    }
+    std::cout<<"\n";
+}
+
+void tokenizer(std::string &str, std::vector<std::vector<Token>> &tokensArr){
     std::vector<std::string> statements;
-    split(str, statements, "\n", true, true, true);
+    split(str, statements, ";", false, false, false);
     for (std::string& statement : statements) {
-        std::vector<std::string> splittedStatement;
-        split(statement,splittedStatement);
+        std::vector<Token> tokens;
         lexer(statement, tokens);
+        //print(tokens);
+        //tokens.push_back(Token());
+        tokensArr.push_back(tokens);
+        //std::cout<<"tokens pushed\n";
     }
 }
