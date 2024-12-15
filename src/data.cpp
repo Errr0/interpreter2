@@ -18,6 +18,7 @@ enum TokenType {
     ARITMETIC_OPERATOR,
     ASSIGN, 
     LOGICAL_OPERATOR,
+    VOID,
     INT,
     FLOAT,
     IDENTIFIER,
@@ -60,6 +61,7 @@ std::string displayTokenType(TokenType token) {
         case ASSIGN: return "ASSIGN";
         case ARITMETIC_OPERATOR: return "ARITMETIC_OPERATOR";
         case LOGICAL_OPERATOR: return "LOGICAL_OPERATOR";
+        case VOID: return "VOID";
         case INT: return "INT";
         case FLOAT: return "FLOAT";
         case IDENTIFIER: return "IDENTIFIER";
@@ -103,7 +105,7 @@ std::string displayType(TokenType token) {
         case HASHTAG: return "";
         case WHITESPACE: return "";
         case AMPERSAND: return "";
-        default: return "UNKNOWN";
+        default: return "";
     }
 }
 
@@ -251,6 +253,7 @@ std::array<std::string, 42> symbols = {
     };
 
 std::set<std::string> keywords = {
+    "def",
     "int",
     "float",
     "char",

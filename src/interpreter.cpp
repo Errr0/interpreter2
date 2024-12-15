@@ -1,21 +1,49 @@
 #include "parser.cpp"
 
-Token interpret(Node* node, int depth = 0, bool isLeft = true){
+std::map<std::string, Token> variables = {
+    {"_", Token(0, INT)},
+    {"a", Token(0, INT)}
+};
+
+std::map<std::string, Token> functions = {
+    {"function", Token(0, INT)}
+};
+
+//variables.insert();
+//variables["b"] = Variable("b");
+
+Token interpret(Node* node, int depth = 0){
     //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
-    if(node->token.type == INT || node->token.type == FLOAT || node->token.type == IDENTIFIER){
+    if(node->token.type == IDENTIFIER){
+        if(variables.count(node->token.value)){
+            return variables[node->token.value];
+        } else{
+            variables.insert({"node->token.value", Token(0, INT)});
+        }
+    } else if(node->token.type == INT || node->token.type == FLOAT){
         return node->token;
-    } else if(node->token.type == ARITMETIC_OPERATOR){
+    } else{
         Token right, left;
         if (node->left) {
-            left = interpret(node->left, depth + 1, false);
+            left = interpret(node->left, depth + 1);
         } else{
             //return Token();
         }
         if (node->right) {
-            right = interpret(node->right, depth + 1, false);
+            right = interpret(node->right, depth + 1);
         } else{
             //return Token();
         }
+    if(node->token.type == ASSIGN){
+        if(left.type == IDENTIFIER){
+            if(variables.count(left.value)){
+                variables[left.value] = right;
+                return right;
+            } else{
+                variables.insert({"node->token.value", Token(0, INT)});
+            }
+        } 
+    } else if(node->token.type == ARITMETIC_OPERATOR){
         if(node->token.value == "+"){
             if(left.type == INT && right.type == INT){
                 return Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), INT);
@@ -47,7 +75,7 @@ Token interpret(Node* node, int depth = 0, bool isLeft = true){
             //     return Token(std::to_string(std::stof(left.value) + std::stof(right.value)), FLOAT);
             }
         }
-    }
+    }}
 }
 
 void interpreter(std::vector<std::vector<Token>> &statements){
@@ -56,5 +84,9 @@ void interpreter(std::vector<std::vector<Token>> &statements){
         std::cout << "\n";
         Token output = interpret(root);
         std::cout << "(" << output.value << "," << displayTokenType(output.type) << ")\n";
+    }
+    std::cout<<"Variables:\n";
+    for(auto variable : variables){
+        std::cout<< "(" <<variable.first<<","<< variable.second.value << "," << displayTokenType(variable.second.type)<<")\n";
     }
 }
