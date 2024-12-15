@@ -11,7 +11,7 @@ Token interpret(Node* node, int depth = 0, bool isLeft = true){
     //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
     if(node->token.type == IDENTIFIER){
         if(!variables.count(node->token.value)){
-            variables.insert({"node->token.value", Token("0", INT)});
+            variables.insert({node->token.value, Token("0", INT)});
         }
         return variables[node->token.value];
     } else if(node->token.type == INT || node->token.type == FLOAT){
@@ -34,7 +34,7 @@ Token interpret(Node* node, int depth = 0, bool isLeft = true){
                     variables[left.value] = right;
                     return right;
                 } else{
-                    variables.insert({"node->token.value", Token("0", INT)});
+                    variables.insert({node->token.value, Token("0", INT)});
                 }
             } 
         } else if(node->token.type == ARITMETIC_OPERATOR){
