@@ -1,6 +1,7 @@
 #include "parser.cpp"
 
 Token interpret(Node* node, int depth = 0, bool isLeft = true){
+    //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
     if(node->token.type == INT || node->token.type == FLOAT || node->token.type == IDENTIFIER){
         return node->token;
     } else if(node->token.type == ARITMETIC_OPERATOR){
@@ -18,25 +19,25 @@ Token interpret(Node* node, int depth = 0, bool isLeft = true){
         if(node->token.value == "+"){
             if(left.type == INT && right.type == INT){
                 return Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), INT);
-            } else if(left.type == FLOAT && right.type == FLOAT){
+            } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                 return Token(std::to_string(std::stof(left.value) + std::stof(right.value)), FLOAT);
             }
         } else if(node->token.value == "-"){
             if(left.type == INT && right.type == INT){
                 return Token(std::to_string(std::stoi(left.value) - std::stoi(right.value)), INT);
-            } else if(left.type == FLOAT && right.type == FLOAT){
+            } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                 return Token(std::to_string(std::stof(left.value) - std::stof(right.value)), FLOAT);
             }
         } else if(node->token.value == "*"){
             if(left.type == INT && right.type == INT){
                 return Token(std::to_string(std::stoi(left.value) * std::stoi(right.value)), INT);
-            } else if(left.type == FLOAT && right.type == FLOAT){
+            } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                 return Token(std::to_string(std::stof(left.value) * std::stof(right.value)), FLOAT);
             }
         } else if(node->token.value == "/"){
             if(left.type == INT && right.type == INT){
                 return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), INT);
-            } else if(left.type == FLOAT && right.type == FLOAT){
+            } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                 return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), FLOAT);
             }
         } else if(node->token.value == "%"){
