@@ -34,8 +34,11 @@ enum TokenType {
     BACKSLASH,
     DOUBLESLASH,
     HASHTAG,
+    AMPERSAND,
     DATATYPE,
-    DECLARATION
+    DECLARATION,
+    VARIABLE,
+    FUNCTION
 };
 
 class Token{
@@ -99,6 +102,7 @@ std::string displayType(TokenType token) {
         case DOUBLESLASH: return "";
         case HASHTAG: return "";
         case WHITESPACE: return "";
+        case AMPERSAND: return "";
         default: return "UNKNOWN";
     }
 }
@@ -149,6 +153,7 @@ std::map<std::string, Token> locked = {
     {"~BACKSLASH", Token("\\", BACKSLASH)},
     {"~DOUBLESLASH", Token("//", DOUBLESLASH)},
     {"~HASHTAG", Token("#", HASHTAG)},
+    {"~AMPERSAND", Token("&", AMPERSAND)},
 
     {"~SPACE", Token(" ", WHITESPACE)},
     {"~TAB", Token("\t", WHITESPACE)}
@@ -195,11 +200,12 @@ std::map<std::string, std::string> lockSymbol = {
     {"//", "~DOUBLESLASH"},
     {"#", "~HASHTAG"},
     {" ", "~SPACE"},
-    {"\t", "~TAB"}
+    {"\t", "~TAB"},
+    {"&", "~AMPERSAND"}
     
 };
 
-std::array<std::string, 41> symbols = {
+std::array<std::string, 42> symbols = {
     "==",
     "!=",
     "<=",
@@ -240,7 +246,8 @@ std::array<std::string, 41> symbols = {
     ":",
     ".",
     "\\",
-    "#"
+    "#",
+    "&"
     };
 
 std::set<std::string> keywords = {
