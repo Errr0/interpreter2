@@ -7,7 +7,7 @@ std::map<std::string, Token> variables = {
 //variables.insert();
 //variables["b"] = Variable("b");
 
-Token interpret(Node* node, int depth = 0, bool isLeft = true){
+Token interpret(Node* node, int depth = 0){
     //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
     if(node->token.type == IDENTIFIER){
         if(!variables.count(node->token.value)){
@@ -18,25 +18,28 @@ Token interpret(Node* node, int depth = 0, bool isLeft = true){
         return node->token;
     } else{
         Token right, left;
-        if (node->left) {
-            left = interpret(node->left, depth + 1, false);
-        } else{
-            //return Token();
-        }
         if (node->right) {
-            right = interpret(node->right, depth + 1, false);
+            right = interpret(node->right);
         } else{
             //return Token();
         }
+        if (node->left) {
+            left = interpret(node->left);
+        } else{
+            //return Token();
+        }
+        
         if(node->token.type == ASSIGN){
             if(left.type == IDENTIFIER){
                 if(variables.count(left.value)){
                     variables[left.value] = right;
-                    return right;
                 } else{
-                    variables.insert({node->token.value, Token("0", INT)});
-                }
-            } 
+                    variables.insert({left.value, right});
+                } 
+                return right;
+            } else{
+                std::cout<<"assigning error\n";
+            }
         } else if(node->token.type == ARITMETIC_OPERATOR){
             if(node->token.value == "+"){
                 if(left.type == INT && right.type == INT){
