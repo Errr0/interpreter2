@@ -39,7 +39,10 @@ enum TokenType {
     DATATYPE,
     DECLARATION,
     VARIABLE,
-    FUNCTION
+    FUNCTION,
+    CLASS,
+    OBJECT,
+    NUL
 };
 
 class Token{
