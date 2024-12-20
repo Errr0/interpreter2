@@ -42,9 +42,11 @@ void addIdentifier(std::string str, std::vector<Token> &tokens){
         if(!tokens.empty()){
             if(tokens.back().type == KEYWORD){
                 if(tokens.back().value == "def"){
+                    tokens.pop_back();
                     tokens.push_back(Token(str,FUNCTION_DECLARATION));
                     return;
                 } else if(tokens.back().value == "class"){
+                    tokens.pop_back();
                     tokens.push_back(Token(str,CLASS));
                     return;
                 }
