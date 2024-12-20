@@ -15,7 +15,7 @@ std::map<std::string, Token> classes = {
 //variables.insert();
 //variables["b"] = Variable("b");
 
-Token interpret(Node* node, int depth = 0){
+Token interpret(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
     //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
     if(node->token.type == IDENTIFIER){
         if(variables.count(node->token.value)){
@@ -94,14 +94,17 @@ Token interpret(Node* node, int depth = 0){
                 }
             }
         }
+        std::cerr << "LEFT (" << left.value << "," << displayTokenType(left.type) << ")\n";
+        std::cerr << "RIGHT (" << right.value << "," << displayTokenType(right.type) << ")\n";
     }
-    return Token();
+    std::cerr << "ERROR (" << node->token.value << "," << displayTokenType(node->token.type) << ")\n";
+    return Token("null",NUL);
 }
 
 void interpreter(std::vector<std::vector<Token>> &statements){
     for(std::vector<Token> tokens : statements){
         Node* root = parse(tokens);
-        std::cout << "\n";
+        //std::cout << "\n";
         Token output = interpret(root);
         std::cout << "(" << output.value << "," << displayTokenType(output.type) << ")\n";
     }

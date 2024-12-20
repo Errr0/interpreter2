@@ -24,25 +24,32 @@ void addAssign(Token token, std::vector<Token> &tokens){
 }
 
 void addKeyword(std::string str, std::vector<Token> &tokens){
-    if(isDatatype(str)){
-        tokens.push_back(Token(str,DATATYPE));
-    } else{
+    // if(str == "def"){
+    //     tokens.push_back(Token(str,FUNCTION_DECLARATION));
+    // } else if(str == "class"){
+    //     tokens.push_back(Token(str,CLASS));
+    //} else if(isDatatype(str)){
+        //tokens.push_back(Token(str,DATATYPE));
+    //} else{
         tokens.push_back(Token(str,KEYWORD));
-    }
+    //}
 }
 
 void addIdentifier(std::string str, std::vector<Token> &tokens){
     if(isKeyword(str)){
         addKeyword(str, tokens);    
     } else {
-        // if(!tokens.empty()){
-        //     if(tokens.back().type == DATATYPE){
-        //         std::string type = tokens.back().value;
-        //         tokens.pop_back();
-        //         tokens.push_back(Token(type+" "+str, DECLARATION));
-        //         return;
-        //     }
-        // }
+        if(!tokens.empty()){
+            if(tokens.back().type == KEYWORD){
+                if(tokens.back().value == "def"){
+                    tokens.push_back(Token(str,FUNCTION_DECLARATION));
+                    return;
+                } else if(tokens.back().value == "class"){
+                    tokens.push_back(Token(str,CLASS));
+                    return;
+                }
+            }
+        }
         tokens.push_back(Token(str,IDENTIFIER));
     }
 }
@@ -72,7 +79,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
             //             tokens[tokens.size()-1].value += "()"; 
             //         }
             //     }
-            } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
+            } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE" || str=="~END"){
                 continue;
             } else{
                 tokens.push_back(locked[str]);
@@ -85,21 +92,22 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     }
 }
 
-void lexer(std::string &str, std::vector<Token> &arr){
-    std::vector<std::string> words;
-    split(str,words);
+void lexer(std::string &str, std::vector<std::string>& words, std::vector<std::string> symbols){
+    words.push_back(str);
     for (std::string& symbol : symbols) {
         std::vector<std::string> temp;
         for (std::string& substr : words) {
             if(substr.find(symbol) != std::string::npos){
                 split(substr, temp, symbol, true, true, true);
             } else {
-                temp.push_back(substr);
+                if(substr != ""){
+                    temp.push_back(substr);
+                }
             }
         }
         words = std::move(temp);
     }
-    tokenize(words, arr);
+    
 }
 
 void print(std::vector<Token> &tokens){
@@ -111,13 +119,15 @@ void print(std::vector<Token> &tokens){
 
 void tokenizer(std::string &str, std::vector<std::vector<Token>> &tokensArr){
     std::vector<std::string> statements;
-    split(str, statements, ";", false, false, false);
+    std::vector<std::string> ss = {"{", "}", ";"};
+    lexer(str, statements, ss);
     for (std::string& statement : statements) {
         std::vector<Token> tokens;
-        lexer(statement, tokens);
+        std::vector<std::string> strings;
+        lexer(statement, strings, operators);
+        tokenize(strings, tokens);
         //print(tokens);
-        //tokens.push_back(Token());
-        tokensArr.push_back(tokens);
-        //std::cout<<"tokens pushed\n";
+        if(!tokens.empty())
+            tokensArr.push_back(tokens);
     }
 }

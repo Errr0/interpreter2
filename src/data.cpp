@@ -40,6 +40,7 @@ enum TokenType {
     DECLARATION,
     VARIABLE,
     FUNCTION,
+    FUNCTION_DECLARATION,
     CLASS,
     OBJECT,
     NUL
@@ -81,6 +82,8 @@ std::string displayTokenType(TokenType token) {
         case HASHTAG: return "HASHTAG";
         case WHITESPACE: return "WHITESPACE";
         case DECLARATION: return "DECLARATION";
+        case VARIABLE: return "VARIABLE";
+        case NUL: return "NULL";
         default: return "UNKNOWN";
     }
 }
@@ -210,7 +213,8 @@ std::map<std::string, std::string> lockSymbol = {
     
 };
 
-std::array<std::string, 42> symbols = {
+std::vector<std::string> operators = {
+    " ",
     "==",
     "!=",
     "<=",
@@ -226,9 +230,9 @@ std::array<std::string, 42> symbols = {
     "%=",
     "//",
     "\n",
-    ";",
+    //";",
     "\t",
-    " ",
+    //" ",
     "=",
     "+",
     "*",

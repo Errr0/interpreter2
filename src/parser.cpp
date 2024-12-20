@@ -76,7 +76,7 @@ Node* parse(std::vector<Token>& tokens) {
             }
             operatorStack.pop(); // Pop the opening bracket
         } else {
-            std::cerr << "PARSER ERROR: Unknown token type!\n";
+            std::cerr << "PARSER ERROR: Unknown token type! "<<token.type<<"\n";
             return nullptr;
         }
     }
