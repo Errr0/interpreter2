@@ -38,13 +38,14 @@ int main(int argc, char* argv[]){
     }
     std::string code;
     if(!readfile(argv[1], code)) return 2;
-    std::vector<std::vector<Token>> tokens;
-    tokenizer(code,tokens);
-    printTokens(tokens);
-    interpreter(tokens);
+    interpreter(code);
+    //std::vector<std::vector<Token>> tokens;
+    //tokenizer(code,tokens);
+    //printTokens(tokens);
+    //interpreter(tokens);
     //Node* root = parse(tokens);
     //printTree(root);
-    std::cout << "done\n";
+    //std::cout << "done\n";
     //delete root;
     return 0;
 }

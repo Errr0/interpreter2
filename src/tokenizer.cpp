@@ -94,11 +94,11 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     }
 }
 
-void lexer(std::string &str, std::vector<std::string>& words, std::vector<std::string> symbols){
-    words.push_back(str);
+void splitString(std::string &str, std::vector<std::string> symbols, std::vector<std::string>& output){
+    output.push_back(str);
     for (std::string& symbol : symbols) {
         std::vector<std::string> temp;
-        for (std::string& substr : words) {
+        for (std::string& substr : output) {
             if(substr.find(symbol) != std::string::npos){
                 split(substr, temp, symbol, true, true, true);
             } else {
@@ -107,7 +107,7 @@ void lexer(std::string &str, std::vector<std::string>& words, std::vector<std::s
                 }
             }
         }
-        words = std::move(temp);
+        output = std::move(temp);
     }
     
 }
@@ -119,17 +119,16 @@ void print(std::vector<Token> &tokens){
     std::cout<<"\n";
 }
 
-void tokenizer(std::string &str, std::vector<std::vector<Token>> &tokensArr){
+void tokenizer(std::string &input, std::vector<std::vector<Token>> &output){
     std::vector<std::string> statements;
-    std::vector<std::string> ss = {"{", "}", ";"};
-    lexer(str, statements, ss);
+    split(input, statements, ";");
     for (std::string& statement : statements) {
         std::vector<Token> tokens;
         std::vector<std::string> strings;
-        lexer(statement, strings, operators);
+        splitString(statement, operators, strings);
         tokenize(strings, tokens);
-        //print(tokens);
+        print(tokens);
         if(!tokens.empty())
-            tokensArr.push_back(tokens);
+            output.push_back(tokens);
     }
 }

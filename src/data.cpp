@@ -214,6 +214,7 @@ std::map<std::string, std::string> lockSymbol = {
 };
 
 std::vector<std::string> operators = {
+    ";",
     " ",
     "==",
     "!=",

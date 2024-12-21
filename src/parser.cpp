@@ -5,10 +5,10 @@ class Node{
     Token token;
     Node* left;
     Node* right;
-    Node(Token token, Node* e1 = nullptr, Node* e2 = nullptr){
+    Node(Token token, Node* left = nullptr, Node* right = nullptr){
         this->token = token;
-        this->left = e1;
-        this->right = e2;
+        this->left = left;
+        this->right = right;
     }
     ~Node(){
         delete this->left;
@@ -97,6 +97,7 @@ Node* parse(std::vector<Token>& tokens) {
 
     return exprStack.top(); // Root of the expression tree
 }
+
 
 
 // Parser
