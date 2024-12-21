@@ -11,9 +11,10 @@ class Scope{
     void appendToken(Token token){
         tokens.push_back(token);
     }
-    void appendScope(Scope scope){
+    int appendScope(Scope scope){
         tokens.push_back(Token(std::to_string(scopes.size()), SCOPE));
         scopes.push_back(scope);
+        return scopes.size()-1;
     }
     void print(int depth = 0){
         for(Token token : tokens){
@@ -25,6 +26,31 @@ class Scope{
         }
     }
 };
+
+Scope makeScopeTree(std::vector<Token>& tokens, std::string type = "{}"){
+    std::string bracket_open, bracket_close;
+    bracket_open = lockSymbol[std::to_string(type[0])];
+    bracket_close = lockSymbol[std::to_string(type[1])];
+    Scope root = Scope(type);
+    Scope* scope = &root;
+    std::stack<Scope*> history;
+    for(Token token : tokens){
+        if(token.type != BRACKET_OPEN || token.type != BRACKET_CLOSE){
+            scope->appendToken(token);
+        } else{
+            if(token.value == bracket_open){
+                int index = scope->appendScope(Scope(type));
+                history.push(scope);
+                scope = &(scope->scopes[index]);
+            } else if(token.value == bracket_close){
+                scope = history.top();
+                history.pop();
+            } else{
+                scope->appendToken(token);
+            }
+        }
+    }
+}
 
 // void printScopes(Scope* node, int depth = 0, bool isLeft = true) {
 //     if (!node) return;
