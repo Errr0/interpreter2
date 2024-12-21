@@ -75,13 +75,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 addAssign(locked["~DIVASSIGN"], tokens);
             } else if(str=="~MODASSIGN"){
                 addAssign(locked["~MODASSIGN"], tokens);
-            // } else if(str=="~BRACKETOPEN"){
-            //     if(!tokens.empty()){
-            //         if(tokens.back().type == DECLARATION){
-            //             tokens[tokens.size()-1].value += "()"; 
-            //         }
-            //     }
-            } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE" || str=="~END"){
+            } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{
                 tokens.push_back(locked[str]);
@@ -94,27 +88,9 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     }
 }
 
-void splitString(std::string &str, std::vector<std::string> symbols, std::vector<std::string>& output){
-    output.push_back(str);
-    for (std::string& symbol : symbols) {
-        std::vector<std::string> temp;
-        for (std::string& substr : output) {
-            if(substr.find(symbol) != std::string::npos){
-                split(substr, temp, symbol, true, true, true);
-            } else {
-                if(substr != ""){
-                    temp.push_back(substr);
-                }
-            }
-        }
-        output = std::move(temp);
-    }
-    
-}
-
 void print(std::vector<Token> &tokens){
     for(Token token : tokens){
-        std::cout << token.value << displayType(token.type)<< "|" << token.weight << "|";
+        std::cout << token.value << displayType(token.type)<<" ";//<< "|" << token.weight << "|";
     }
     std::cout<<"\n";
 }

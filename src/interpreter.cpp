@@ -102,16 +102,23 @@ Token interpret(Node* node, int depth = 0, bool retrurning = false, Token retrur
 }
 
 void interpreter(std::string& code){
-    replace(code, "\n", "|n|");
-    replace(code, "    ", "|t|");
-    std::vector<std::string> scopes = {"{"};
-    std::vector<std::string> scopeSymbols = {"{", "}"};
-    splitString(code, scopeSymbols, scopes);
-    scopes.push_back("~CURLYBRACKETCLOSE");
-    for(std::string scope : scopes){
-        std::cout << scope <<"\n";
-    } std::cout << "\n";
-    //Scope* rootScope = parseScopes(scopes);
+    std::vector<std::string> strings;
+    std::vector<Token> tokens;
+    splitString(code, operators, strings);
+    tokenize(strings, tokens);
+    print(tokens);
+    
+    //replace(code, "\n", "|n|");
+    //replace(code, "    ", "|t|");
+    //std::vector<std::string> scopes = {"{"};
+    //std::vector<std::string> scopeSymbols = {"{", "}"};
+    //splitString(code, scopeSymbols, scopes);
+    //scopes.push_back("~CURLYBRACKETCLOSE");
+
+    // for(std::string scope : scopes){
+    //     std::cout << scope <<"\n";
+    // } std::cout << "\n";
+    // //Scope* rootScope = parseScopes(scopes);
     //printScopes(rootScope);
     // for (std::string& statement : scopes) {
     //     std::vector<Token> tokens;

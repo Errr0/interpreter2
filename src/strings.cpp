@@ -39,3 +39,20 @@ std::string merge(std::vector<std::string> &arr){
 void replace(std::string &str, std::string from, std::string to) {
     str = std::regex_replace(str, std::regex(from), to);
 }
+
+void splitString(std::string &str, std::vector<std::string> symbols, std::vector<std::string>& output){
+    output.push_back(str);
+    for (std::string& symbol : symbols) {
+        std::vector<std::string> temp;
+        for (std::string& substr : output) {
+            if(substr.find(symbol) != std::string::npos){
+                split(substr, temp, symbol, true, true, true);
+            } else {
+                if(substr != ""){
+                    temp.push_back(substr);
+                }
+            }
+        }
+        output = std::move(temp);
+    }
+}

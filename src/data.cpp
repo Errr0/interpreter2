@@ -36,14 +36,15 @@ enum TokenType {
     DOUBLESLASH,
     HASHTAG,
     AMPERSAND,
-    DATATYPE,
-    DECLARATION,
+    SCOPE,
     VARIABLE,
     FUNCTION,
     FUNCTION_DECLARATION,
     CLASS,
     OBJECT,
-    NUL
+    NUL,
+    DATATYPE,
+    DECLARATION
 };
 
 class Token{
@@ -84,13 +85,14 @@ std::string displayTokenType(TokenType token) {
         case DECLARATION: return "DECLARATION";
         case VARIABLE: return "VARIABLE";
         case NUL: return "NULL";
+        case SCOPE: return "SCOPE";
         default: return "UNKNOWN";
     }
 }
 
 std::string displayType(TokenType token) {
     switch (token) {
-        case END: return "END";
+        case END: return "";
         case ENDLINE: return "endl";
         case ASSIGN: return "";
         case ARITMETIC_OPERATOR: return "";
@@ -214,6 +216,8 @@ std::map<std::string, std::string> lockSymbol = {
 };
 
 std::vector<std::string> operators = {
+    "{",
+    "}",
     ";",
     " ",
     "==",
@@ -247,8 +251,6 @@ std::vector<std::string> operators = {
     ")",
     "[",
     "]",
-    "{",
-    "}",
     "'",
     "\"",
     "?",
