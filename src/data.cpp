@@ -113,6 +113,7 @@ std::string displayType(TokenType token) {
         case HASHTAG: return "";
         case WHITESPACE: return "";
         case AMPERSAND: return "";
+        case SCOPE: return "s";
         default: return "";
     }
 }
@@ -200,7 +201,7 @@ std::map<std::string, std::string> lockSymbol = {
     {"]", "~SQUAREBRACKETCLOSE"},
     {"{", "~CURLYBRACKETOPEN"},
     {"}", "~CURLYBRACKETCLOSE"},
-    {"'", "~APOSTROPHE"},
+    {"\'", "~APOSTROPHE"},
     {"\"", "~QUOTATION"},
     {"?", "~QUESTIONMARK"},
     {",", "~COMMA"},

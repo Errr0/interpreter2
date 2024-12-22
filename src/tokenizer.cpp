@@ -90,7 +90,7 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
 
 void print(std::vector<Token> &tokens){
     for(Token token : tokens){
-        std::cout << token.value << displayType(token.type)<<" ";//<< "|" << token.weight << "|";
+        std::cout << token.value << displayType(token.type);//<< "|" << token.weight << "|";
     }
     std::cout<<"\n";
 }
