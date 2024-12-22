@@ -30,8 +30,8 @@ class Scope{
     Scope(std::string type = "{}", std::vector<std::shared_ptr<std::map<std::string, Token>>> namespaces = {}){
         this->type = type;
         this->namespaces = namespaces;
-        std::map<std::string, Token>  currrentScopeNamespace;
-        this->namespaces.insert(this->namespaces.begin(), currrentScopeNamespace);
+        std::map<std::string, Token>  currrentScopeNamespace;//let chatgpt do this
+        this->namespaces.insert(this->namespaces.begin(), &currrentScopeNamespace);
     }
 
     void appendToken(Token token){
