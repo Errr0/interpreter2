@@ -20,7 +20,10 @@ class Scope{
     std::vector<Token> tokens;
     std::vector<std::unique_ptr<Scope>> scopes;
 
-    std::vector<std::map<std::string, Token>> namespaces;
+    std::stack<Token> operatorStack;
+    std::stack<Node*> exprStack;
+
+    std::vector<std::map<std::string, Token>> namespaces;//make to pointers
 
     Scope(std::string type = "{}", std::vector<std::map<std::string, Token>> namespaces = {}){
         this->type = type;
@@ -28,13 +31,14 @@ class Scope{
         std::map<std::string, Token> currrentScopeNamespace;
         this->namespaces.insert(this->namespaces.begin(), currrentScopeNamespace);
     }
+
     void appendToken(Token token){
         tokens.push_back(token);
     }
 
     Scope* appendScope(const std::string& scopeType) {
         scopes.emplace_back(std::make_unique<Scope>(scopeType));
-        tokens.push_back(Token(std::to_string(scopes.size()-1), SCOPE));
+        tokens.push_back(Token(type, SCOPE, scopes.size()-1));
         return scopes.back().get();
     }
 
@@ -53,11 +57,7 @@ class Scope{
         }
     }
 
-    Node* parse(){
-        std::stack<Token> operatorStack;
-        std::stack<Node*> exprStack;
-
-        auto processOperator = [&]() {
+    void processOperator() {
             if (operatorStack.empty() || exprStack.size() < 2) {
                 std::cerr << "PARSER ERROR: Invalid operator/operand stack state!\n";
                 return;
@@ -74,13 +74,25 @@ class Scope{
             exprStack.push(new Node(op, left, right));
         };
 
+    Node* parse(std::vector<Token> expected = {}){
         for (const Token& token : tokens) {
-            if (token.type == SCOPE) {
-                exprStack.push(new Node(scopes[stoi(token.value)] -> interpret()));
-            } else if (token.type == INT || token.type == FLOAT) {
+            if(!expected.empty()){
+                std::cout <<"clearing expected";
+                expected = {};
+            } else if (token.type == SCOPE) {
+                exprStack.push(new Node(scopes[token.weight] -> interpret()));
+            } else if (token.type == FUNCTION_DECLARATION) {
+                expected.push_back(Token("()", SCOPE));
+                expected.push_back(Token("{}", SCOPE));
                 exprStack.push(new Node(token));
-            } else if (token.type == INT || token.type == IDENTIFIER) {
+            } else if (token.type == CLASS) {
+                expected.push_back(Token("()", SCOPE));
+                expected.push_back(Token("{}", SCOPE));
                 exprStack.push(new Node(token));
+            } else if (token.type == INT || token.type == FLOAT || token.type == IDENTIFIER) {
+                exprStack.push(new Node(token));
+            // } else if (token.type == IDENTIFIER) {
+            //     exprStack.push(new Node(token));
             } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
                 while (!operatorStack.empty() && 
                     operatorStack.top().type != BRACKET_OPEN &&
@@ -88,15 +100,15 @@ class Scope{
                     processOperator();
                 }
                 operatorStack.push(token);
-            } else if (token.type == BRACKET_CLOSE && token.value == ")") {
-                while (!operatorStack.empty() && operatorStack.top().type != BRACKET_OPEN) {
-                    processOperator();
-                }
-                if (operatorStack.empty() || operatorStack.top().type != BRACKET_OPEN) {
-                    std::cerr << "PARSER ERROR: Mismatched brackets!\n";
-                    return nullptr;
-                }
-                operatorStack.pop(); // Pop the opening bracket
+            // } else if (token.type == BRACKET_CLOSE && token.value == ")") {
+            //     while (!operatorStack.empty() && operatorStack.top().type != BRACKET_OPEN) {
+            //         processOperator();
+            //     }
+            //     if (operatorStack.empty() || operatorStack.top().type != BRACKET_OPEN) {
+            //         std::cerr << "PARSER ERROR: Mismatched brackets!\n";
+            //         return nullptr;
+            //     }
+            //     operatorStack.pop(); // Pop the opening bracket
             } else {
                 std::cerr << "PARSER ERROR: Unknown token type! "<<displayTokenType(token.type)<<"\n";
                 return nullptr;
@@ -123,17 +135,18 @@ class Scope{
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
         //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
         if(node->token.type == IDENTIFIER){
-            if(namespaces[0].count(node->token.value)){
-                node->token = Token(node->token.value, VARIABLE);
-            } else if(functions.count(node->token.value)){
+            // if(namespaces[0].count(node->token.value)){
+            //     node->token = Token(node->token.value, VARIABLE);
+            // } else if(functions.count(node->token.value)){
                 
-            } else if(classes.count(node->token.value)){
+            // } else if(classes.count(node->token.value)){
                 
-            } else{
-                node->token = Token(node->token.value, VARIABLE);
-                namespaces[0].insert({node->token.value, Token("null", NUL)});
-            }
-            return node->token;
+            // } else{
+            //     node->token = Token(node->token.value, VARIABLE);
+            //     namespaces[0].insert({node->token.value, Token("null", NUL)});
+            // }
+            // return node->token;
+            return Token("0", INT);
         } else if(node->token.type == INT || node->token.type == FLOAT){
             return node->token;
         } else{
@@ -152,8 +165,8 @@ class Scope{
             //std::cout<<" left: "<<displayTokenType(left.type)<<" right: "<< displayTokenType(right.type) <<"\n";
             
             if(node->token.type == ASSIGN){
-                if(left.type == VARIABLE){
-                    if(right.type == VARIABLE){
+                if(left.type == IDENTIFIER){
+                    if(right.type == IDENTIFIER){
                         namespaces[0][left.value] = namespaces[0][right.value];
                     } else{
                         namespaces[0][left.value] = right;
@@ -207,9 +220,6 @@ class Scope{
     }
 
     Token interpret(int depth = 0){
-        // for (const auto& scope : scopes) {
-        //     scope->interpret(depth + 1);
-        // }
         root = this->parse();
         return interpretTree(root);
     }
