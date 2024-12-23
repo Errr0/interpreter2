@@ -14,6 +14,15 @@ void addNumberToken(std::string str, std::vector<Token> &tokens){
     tokens.push_back(Token(str,INT));
 }
 
+void addMinus(std::vector<Token> &tokens){
+    if(!tokens.empty()){
+        if(tokens.back().type == ARITMETIC_OPERATOR || tokens.back().type == ASSIGN){
+            tokens.push_back(Token("0", INT));
+        }
+        tokens.push_back(locked["~MINUS"]);
+    }
+}
+
 void addAssign(Token token, std::vector<Token> &tokens){
     if(!tokens.empty()){
         Token temp = tokens.back();
@@ -60,10 +69,10 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
             if(str=="~INCREMENT"){
-                tokens.push_back(locked["~ADDASSIGN"]);
+                addAssign(locked["~ADDASSIGN"], tokens);
                 tokens.push_back(Token("1", INT));
             } else if(str=="~DECREMENT"){
-                tokens.push_back(locked["~SUBASSIGN"]);
+                addAssign(locked["~SUBASSIGN"], tokens);
                 tokens.push_back(Token("1", INT));
             } else if(str=="~ADDASSIGN"){
                 addAssign(locked["~ADDASSIGN"], tokens);
@@ -75,6 +84,8 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 addAssign(locked["~DIVASSIGN"], tokens);
             } else if(str=="~MODASSIGN"){
                 addAssign(locked["~MODASSIGN"], tokens);
+            } else if(str=="~MINUS"){
+                addMinus(tokens);
             } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{

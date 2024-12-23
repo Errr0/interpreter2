@@ -38,6 +38,7 @@ enum TokenType {
     AMPERSAND,
     SCOPE,
     STATEMENT,
+    ARRAY,
     VARIABLE,
     FUNCTION,
     FUNCTION_DECLARATION,
@@ -89,6 +90,8 @@ std::string displayTokenType(TokenType token) {
         case VARIABLE: return "VARIABLE";
         case NUL: return "NULL";
         case SCOPE: return "SCOPE";
+        case STATEMENT: return "STATEMENT";
+        case ARRAY: return "ARRAY";
         default: return "UNKNOWN";
     }
 }

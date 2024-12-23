@@ -7,13 +7,12 @@
 
 // std::vector<std::shared_ptr<std::map<std::string, Token>>> buildInNamespace;
 // buildInNamespace.insert(buildInNamespace.begin(), std::make_shared<std::map<std::string, Token>>(Namespace));
-
-
+std::vector<std::vector<Token>> Arrays;
 
 std::map<std::string, Token> namespaceMap = {
-        {"_", Token("0", INT)},
-        {"a", Token("0", INT)}
-    };
+    {"_", Token("0", INT)},
+    {"a", Token("2", INT)}
+};
 std::vector<std::shared_ptr<std::map<std::string, Token>>> buildInNamespace = {
     std::make_shared<std::map<std::string, Token>>(namespaceMap)
 };
@@ -64,6 +63,14 @@ class Scope{
         return scopes.back().get();
     }
 
+    void printNamespaces(int depth = 0){
+        for(std::shared_ptr<std::map<std::string, Token>> ns : namespaces){
+            for(auto pair : *ns){
+                std::cout<<std::string(depth * 5, ' ')<<"("<<pair.first<<","<<"("<<pair.second.value<<","<<displayTokenType(pair.second.type)<<","<<pair.second.weight<<")"<<")\n";
+            }
+        }
+    }
+
     void print(int depth = 0){
         std::cout << std::string(depth * 5, ' ') << "Type: "<<type<<" Tokens: ";
         if(tokens.empty()){
@@ -73,12 +80,21 @@ class Scope{
                 std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
             }
         }
-        std::cout << " Statements: ";
+        std::cout <<"\n"<< std::string(depth+1 * 5, ' ')<<"Namespaces:\n";
+        printNamespaces(depth+1);
+        std::cout << std::string(depth+1 * 5, ' ')<< "Statements: ";
         if(statements.empty()){
             std::cout<<"EMPTY";
         } else {
             for(Token statement : statements){
                 std::cout<<statement.weight<<displayType(statement.type)<<" ";
+            }
+            for(std::vector<Token> statement : statementsTokens){
+                std::cout << "\n";
+                std::cout << std::string(depth+1 * 5, ' ') <<"Tokens: ";
+                for(Token token : statement){
+                    std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
+                }
             }
         }
         std::cout<<"\n";
@@ -106,7 +122,7 @@ class Scope{
 
     Node* parse(std::vector<Token> statement, std::vector<Token> expected = {}){
         for (const Token& token : statement) {
-            // std::cout <<"parsing "<<token.value<<" "<<token.type<<" "<<token.weight<<"\n";
+            //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             if(!expected.empty()){
                 std::cout <<"clearing expected";
                 expected = {};
@@ -136,17 +152,15 @@ class Scope{
         }
         // Process remaining operators
         while (!operatorStack.empty()) {
-            if (operatorStack.top().type == BRACKET_OPEN) {
-                std::cerr << "PARSER ERROR: Mismatched brackets!\n";
-                return nullptr;
-            }
             processOperator();
         }
         if (exprStack.size() != 1) {
             std::cerr << "PARSER ERROR: Malformed expression!\n";
             return nullptr;
         }
-        return exprStack.top();
+        Node* return_value = exprStack.top();
+        exprStack.pop();
+        return return_value;
     }
 
     Token* findInNamespace(std::string key){
@@ -160,9 +174,10 @@ class Scope{
 
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
         //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
-        if(1==0){
-            
-        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == IDENTIFIER){
+        if(node->token.type == IDENTIFIER){
+            ScopeNamespace.insert({node->token.value, Token("null", NUL)});
+            return node->token;
+        } else if(node->token.type == INT || node->token.type == FLOAT){
             return node->token;
         } else{
             Token right, left;
@@ -178,17 +193,23 @@ class Scope{
             }
             if(node->token.type == ASSIGN){
                 if(left.type == IDENTIFIER){
-                    ScopeNamespace[left.value] = (right.type == IDENTIFIER) ? *findInNamespace(right.value) : right;
-                    return ScopeNamespace[left.value];
+                    *findInNamespace(left.value) = (right.type == IDENTIFIER) ? *findInNamespace(right.value) : right;
+                    return *findInNamespace(left.value);
                 } else{
                     std::cout<<"assigning error\n";
                 }
             } else if(node->token.type == ARITMETIC_OPERATOR){
-                if(left.type == VARIABLE){
+                if(left.type == IDENTIFIER){
                     left = *findInNamespace(left.value);
+                    if(left.type == NUL){
+                        left = Token(0,INT);
+                    }
                 }
-                if(right.type == VARIABLE){
+                if(right.type == IDENTIFIER){
                     right = *findInNamespace(right.value);
+                    if(right.type == NUL){
+                        right = Token(0,INT);
+                    }
                 }
                 if(node->token.value == "+"){
                     if(left.type == INT && right.type == INT){
@@ -229,15 +250,28 @@ class Scope{
 
     Token interpret(int depth = 0){
         std::vector<Token> outputs;
-        for(Token& statement : statements){
-            Node* root = this->parse(statementsTokens[statement.weight]);
+        if(!statements.empty()){
+            for(Token& statement : statements){
+                Node* root = this->parse(statementsTokens[statement.weight]);
+                Token output = interpretTree(root);
+                outputs.push_back(output);
+                //std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
+            }
+        }  
+        if(!tokens.empty()){
+            Node* root = this->parse(tokens);
             Token output = interpretTree(root);
             outputs.push_back(output);
-            std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
+            //std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
         }
-        //root = this->parse();
         if(outputs.size() == 1){
             return outputs.back();
+        } else if(outputs.size() > 1){
+            Arrays.push_back(outputs);
+            return Token("array", ARRAY, Arrays.size()-1);
+        } else {
+            std::cerr<<"INTERPRETING ERROR no outputs\n";
+            return Token("null",NUL);
         }
     }
 };

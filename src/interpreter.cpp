@@ -9,12 +9,13 @@ void interpreter(std::string& code){
     Scope root = makeScopeTree(tokens);
     root.print();
     Token output = root.interpret();
+    std::cout << "\n";
     std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
-    // for(Token statement : root.statements){
-    //     Token output = root.scopes[statement.weight]->interpret();
-    //     std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
-    // }
-    //Token output = scopes.interpret();
-    
+    if(output.type == ARRAY){
+        for(Token token : Arrays[output.weight]){
+            std::cout << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
+        }
+    }
+    root.print();
     std::cout<<"done\n";
 }
