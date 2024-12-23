@@ -37,6 +37,7 @@ enum TokenType {
     HASHTAG,
     AMPERSAND,
     SCOPE,
+    STATEMENT,
     VARIABLE,
     FUNCTION,
     FUNCTION_DECLARATION,

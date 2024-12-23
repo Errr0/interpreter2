@@ -1,23 +1,38 @@
 #include "parser.cpp"
 
-std::map<std::string, Token> variables = {
-    {"_", Token("0", INT)},
-    {"a", Token("0", INT)}
-};
+// std::map<std::string, Token> Namespace = {
+//     {"_", Token("0", INT)},
+//     {"a", Token("0", INT)}
+// };
 
-std::map<std::string, Token> functions = {
-    {"function", Token("0", INT)},
-};
+// std::vector<std::shared_ptr<std::map<std::string, Token>>> buildInNamespace;
+// buildInNamespace.insert(buildInNamespace.begin(), std::make_shared<std::map<std::string, Token>>(Namespace));
 
-std::map<std::string, Token> classes = {
-    {"classA", Token("0", INT)},
+
+
+std::map<std::string, Token> namespaceMap = {
+        {"_", Token("0", INT)},
+        {"a", Token("0", INT)}
+    };
+std::vector<std::shared_ptr<std::map<std::string, Token>>> buildInNamespace = {
+    std::make_shared<std::map<std::string, Token>>(namespaceMap)
 };
+//.insert(buildInNamespace.begin(),std::make_shared<std::map<std::string, Token>>(namespaceMap));
+// std::map<std::string, Token> functions = {
+//     {"function", Token("0", INT)},
+// };
+
+// std::map<std::string, Token> classes = {
+//     {"classA", Token("0", INT)},
+// };
 
 class Scope{
     public:
     Node* root;
     std::string type;
     std::vector<Token> tokens;
+    std::vector<Token> statements;
+    std::vector<std::vector<Token>> statementsTokens;
     std::vector<std::unique_ptr<Scope>> scopes;
 
     std::stack<Token> operatorStack;
@@ -36,8 +51,15 @@ class Scope{
         tokens.push_back(token);
     }
 
+    void makeStatement(){
+        statementsTokens.push_back(tokens);
+        tokens.clear();
+        statements.push_back(Token(";", STATEMENT, statementsTokens.size()-1));
+        
+    }
+
     Scope* appendScope(const std::string& scopeType) {
-        scopes.emplace_back(std::make_unique<Scope>(scopeType));
+        scopes.emplace_back(std::make_unique<Scope>(scopeType, namespaces));
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
         return scopes.back().get();
     }
@@ -48,7 +70,15 @@ class Scope{
             std::cout<<"EMPTY";
         } else {
             for(Token token : tokens){
-            std::cout<<token.value<<displayType(token.type)<<" ";
+                std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
+            }
+        }
+        std::cout << " Statements: ";
+        if(statements.empty()){
+            std::cout<<"EMPTY";
+        } else {
+            for(Token statement : statements){
+                std::cout<<statement.weight<<displayType(statement.type)<<" ";
             }
         }
         std::cout<<"\n";
@@ -74,9 +104,9 @@ class Scope{
             exprStack.push(new Node(op, left, right));
         };
 
-    Node* parse(std::vector<Token> expected = {}){
-        
-        for (const Token& token : tokens) {
+    Node* parse(std::vector<Token> statement, std::vector<Token> expected = {}){
+        for (const Token& token : statement) {
+            // std::cout <<"parsing "<<token.value<<" "<<token.type<<" "<<token.weight<<"\n";
             if(!expected.empty()){
                 std::cout <<"clearing expected";
                 expected = {};
@@ -198,19 +228,30 @@ class Scope{
     }
 
     Token interpret(int depth = 0){
-        root = this->parse();
-        return interpretTree(root);
+        std::vector<Token> outputs;
+        for(Token& statement : statements){
+            Node* root = this->parse(statementsTokens[statement.weight]);
+            Token output = interpretTree(root);
+            outputs.push_back(output);
+            std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
+        }
+        //root = this->parse();
+        if(outputs.size() == 1){
+            return outputs.back();
+        }
     }
 };
 
 
 Scope makeScopeTree(std::vector<Token>& tokens) {
-    Scope root("{}");
+    Scope root("{}", buildInNamespace);
     Scope* currentScope = &root;
     std::stack<Scope*> scopeStack;
     for (const Token& token : tokens) {
-        if (token.type != BRACKET_OPEN && token.type != BRACKET_CLOSE) {
+        if (token.type != BRACKET_OPEN && token.type != BRACKET_CLOSE && token.type != END) {
             currentScope->appendToken(token);
+        } else if (token.type == END){
+            currentScope->makeStatement();
         } else if (token.type == BRACKET_OPEN) {
             std::string type;
             if (token.value == "{") type = "{}";

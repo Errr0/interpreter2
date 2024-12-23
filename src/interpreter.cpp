@@ -6,9 +6,15 @@ void interpreter(std::string& code){
     splitString(code, operators, strings);
     tokenize(strings, tokens);
     print(tokens);
-    Scope scopes = makeScopeTree(tokens);
-    scopes.print();
-    Token output = scopes.interpret();
+    Scope root = makeScopeTree(tokens);
+    root.print();
+    Token output = root.interpret();
     std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
+    // for(Token statement : root.statements){
+    //     Token output = root.scopes[statement.weight]->interpret();
+    //     std::cout << "(" << output.value << "," << displayTokenType(output.type) << "," << output.weight <<")\n";
+    // }
+    //Token output = scopes.interpret();
+    
     std::cout<<"done\n";
 }
