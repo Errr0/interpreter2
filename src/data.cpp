@@ -59,6 +59,8 @@ class Token{
     }
 };
 
+Token nullvalue = Token("null", NUL);
+
 std::string displayTokenType(TokenType token) {
     switch (token) {
         case END: return "END";
@@ -118,18 +120,18 @@ std::string displayType(TokenType token) {
     }
 }
 
-std::array<int,5> values = {0,1,2,-1,-2};
+std::array<int,6> values = {0, 1, 2, 3, 4, 5};
 
 std::map<std::string, Token> locked = {
     {"~END", Token(";", END)},
     {"~ENDLINE", Token("\n", ENDLINE)},
 
-    {"~ASSIGN", Token("=", ASSIGN, values[4])},
-    {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, values[3])},
-    {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, values[3])},
-    {"~MULASSIGN", Token("*", ARITMETIC_OPERATOR, values[3])},
-    {"~DIVASSIGN", Token("/", ARITMETIC_OPERATOR, values[3])},
-    {"~MODASSIGN", Token("%", ARITMETIC_OPERATOR, values[3])},
+    {"~ASSIGN", Token("=", ASSIGN, -values[4])},
+    {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, -values[1])},
+    {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, -values[1])},
+    {"~MULASSIGN", Token("*", ARITMETIC_OPERATOR, -values[2])},
+    {"~DIVASSIGN", Token("/", ARITMETIC_OPERATOR, -values[2])},
+    {"~MODASSIGN", Token("%", ARITMETIC_OPERATOR, -values[2])},
 
     {"~PLUS", Token("+", ARITMETIC_OPERATOR, values[1])},
     {"~MINUS", Token("-", ARITMETIC_OPERATOR, values[1])},

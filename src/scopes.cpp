@@ -26,12 +26,10 @@ class Scope{
     std::map<std::string, Token>  ScopeNamespace;
     std::vector<std::shared_ptr<std::map<std::string, Token>>> namespaces;//make to pointers
     
-
     Scope(std::string type = "{}", std::vector<std::shared_ptr<std::map<std::string, Token>>> namespaces = {}){
         this->type = type;
         this->namespaces = namespaces;
-        std::map<std::string, Token>  currrentScopeNamespace;//let chatgpt do this
-        this->namespaces.insert(this->namespaces.begin(), &currrentScopeNamespace);
+        this->namespaces.insert(this->namespaces.begin(), std::make_shared<std::map<std::string, Token>>(ScopeNamespace));
     }
 
     void appendToken(Token token){
@@ -77,6 +75,7 @@ class Scope{
         };
 
     Node* parse(std::vector<Token> expected = {}){
+        
         for (const Token& token : tokens) {
             if(!expected.empty()){
                 std::cout <<"clearing expected";
@@ -120,6 +119,15 @@ class Scope{
         return exprStack.top();
     }
 
+    Token* findInNamespace(std::string key){
+        for(std::shared_ptr<std::map<std::string, Token>> ns : namespaces){
+            if((*ns).count(key)){
+                return &(*ns)[key];
+            }
+        }
+        return &nullvalue;
+    }
+
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
         //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
         if(1==0){
@@ -140,21 +148,17 @@ class Scope{
             }
             if(node->token.type == ASSIGN){
                 if(left.type == IDENTIFIER){
-                    if(right.type == IDENTIFIER){
-                        namespaces[0][left.value] = namespaces[0][right.value];
-                    } else{
-                        namespaces[0][left.value] = right;
-                    }
-                    return right;
+                    ScopeNamespace[left.value] = (right.type == IDENTIFIER) ? *findInNamespace(right.value) : right;
+                    return ScopeNamespace[left.value];
                 } else{
                     std::cout<<"assigning error\n";
                 }
             } else if(node->token.type == ARITMETIC_OPERATOR){
                 if(left.type == VARIABLE){
-                    left = namespaces[0][left.value];
+                    left = *findInNamespace(left.value);
                 }
                 if(right.type == VARIABLE){
-                    right = namespaces[0][right.value];
+                    right = *findInNamespace(right.value);
                 }
                 if(node->token.value == "+"){
                     if(left.type == INT && right.type == INT){
