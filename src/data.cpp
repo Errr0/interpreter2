@@ -130,7 +130,11 @@ std::map<std::string, Token> locked = {
     {"~END", Token(";", END)},
     {"~ENDLINE", Token("\n", ENDLINE)},
 
-    {"~ASSIGN", Token("=", ASSIGN, -values[4])},
+    {"~STRONG_ASSIGN", Token("=", ASSIGN, -values[5])},
+    {"~INCREMENT", Token("+", ARITMETIC_OPERATOR, -values[4])},
+    {"~INCREMENT", Token("-", ARITMETIC_OPERATOR, -values[4])},
+
+    {"~ASSIGN", Token("=", ASSIGN, -values[3])},
     {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, -values[1])},
     {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, -values[1])},
     {"~MULASSIGN", Token("*", ARITMETIC_OPERATOR, -values[2])},

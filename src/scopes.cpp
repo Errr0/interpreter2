@@ -9,12 +9,17 @@
 // buildInNamespace.insert(buildInNamespace.begin(), std::make_shared<std::map<std::string, Token>>(Namespace));
 std::vector<std::vector<Token>> Arrays;
 
-std::map<std::string, Token> namespaceMap = {
+std::map<std::string, Token> GlobalNamespace = {
     {"_", Token("0", INT)},
     {"a", Token("2", INT)}
 };
-std::vector<std::shared_ptr<std::map<std::string, Token>>> buildInNamespace = {
-    std::make_shared<std::map<std::string, Token>>(namespaceMap)
+
+std::map<std::string, Token> BuildInNamespace = {
+    {"PI", Token("3.14", FLOAT)}
+};
+
+std::vector<std::map<std::string, Token>*> BuildInNamespaces = {
+    &BuildInNamespace
 };
 //.insert(buildInNamespace.begin(),std::make_shared<std::map<std::string, Token>>(namespaceMap));
 // std::map<std::string, Token> functions = {
@@ -38,12 +43,12 @@ class Scope{
     std::stack<Node*> exprStack;
 
     std::map<std::string, Token>  ScopeNamespace;
-    std::vector<std::shared_ptr<std::map<std::string, Token>>> namespaces;//make to pointers
+    std::vector<std::map<std::string, Token>*> namespaces;//make to pointers
     
-    Scope(std::string type = "{}", std::vector<std::shared_ptr<std::map<std::string, Token>>> namespaces = {}){
+    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}){
         this->type = type;
         this->namespaces = namespaces;
-        this->namespaces.insert(this->namespaces.begin(), std::make_shared<std::map<std::string, Token>>(ScopeNamespace));
+        this->namespaces.insert(this->namespaces.begin(), &ScopeNamespace);
     }
 
     void appendToken(Token token){
@@ -64,7 +69,8 @@ class Scope{
     }
 
     void printNamespaces(int depth = 0){
-        for(std::shared_ptr<std::map<std::string, Token>> ns : namespaces){
+        for(std::map<std::string, Token>* ns : namespaces){
+            std::cout<<std::string(depth * 5, ' ')<<"namespace:\n";
             for(auto pair : *ns){
                 std::cout<<std::string(depth * 5, ' ')<<"("<<pair.first<<","<<"("<<pair.second.value<<","<<displayTokenType(pair.second.type)<<","<<pair.second.weight<<")"<<")\n";
             }
@@ -80,9 +86,9 @@ class Scope{
                 std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
             }
         }
-        std::cout <<"\n"<< std::string(depth+1 * 5, ' ')<<"Namespaces:\n";
+        std::cout <<"\n"<< std::string((depth+1) * 5, ' ')<<"Namespaces:\n";
         printNamespaces(depth+1);
-        std::cout << std::string(depth+1 * 5, ' ')<< "Statements: ";
+        std::cout << std::string((depth+1) * 5, ' ')<< "Statements: ";
         if(statements.empty()){
             std::cout<<"EMPTY";
         } else {
@@ -164,7 +170,7 @@ class Scope{
     }
 
     Token* findInNamespace(std::string key){
-        for(std::shared_ptr<std::map<std::string, Token>> ns : namespaces){
+        for(std::map<std::string, Token>* ns : namespaces){
             if((*ns).count(key)){
                 return &(*ns)[key];
             }
@@ -175,7 +181,9 @@ class Scope{
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
         //std::cout<<"()"<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
         if(node->token.type == IDENTIFIER){
-            ScopeNamespace.insert({node->token.value, Token("null", NUL)});
+            if(findInNamespace(node->token.value) != &nullvalue){
+                ScopeNamespace.insert({node->token.value, Token("null", NUL)});
+            }
             return node->token;
         } else if(node->token.type == INT || node->token.type == FLOAT){
             return node->token;
@@ -278,7 +286,8 @@ class Scope{
 
 
 Scope makeScopeTree(std::vector<Token>& tokens) {
-    Scope root("{}", buildInNamespace);
+    Scope root("{}", BuildInNamespaces);
+    root.ScopeNamespace = GlobalNamespace;
     Scope* currentScope = &root;
     std::stack<Scope*> scopeStack;
     for (const Token& token : tokens) {

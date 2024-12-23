@@ -23,10 +23,10 @@ void addMinus(std::vector<Token> &tokens){
     }
 }
 
-void addAssign(Token token, std::vector<Token> &tokens){
+void addAssign(Token token, std::vector<Token> &tokens, bool strong = false){
     if(!tokens.empty()){
         Token temp = tokens.back();
-        tokens.push_back(locked["~ASSIGN"]);
+        tokens.push_back((strong)?locked["~STRONG_ASSIGN"]:locked["~ASSIGN"]);
         tokens.push_back(temp);
         tokens.push_back(token);
     }
@@ -69,10 +69,10 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
             if(str=="~INCREMENT"){
-                addAssign(locked["~ADDASSIGN"], tokens);
+                addAssign(locked["~INCREMENT"], tokens, true);
                 tokens.push_back(Token("1", INT));
-            } else if(str=="~DECREMENT"){
-                addAssign(locked["~SUBASSIGN"], tokens);
+            } else if(str=="~INCREMENT"){
+                addAssign(locked["~DECREMENT"], tokens, true);
                 tokens.push_back(Token("1", INT));
             } else if(str=="~ADDASSIGN"){
                 addAssign(locked["~ADDASSIGN"], tokens);
