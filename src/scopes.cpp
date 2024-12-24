@@ -1,5 +1,15 @@
 #include "parser.cpp"
 
+class pair{
+    public:
+    Token token;
+    bool required;
+    pair(Token token, bool required = false){
+        this->token = token;
+        this->required = required;
+    }
+};
+
 std::vector<std::vector<Token>> Arrays;
 
 std::map<std::string, Token> GlobalNamespace = {
@@ -74,16 +84,12 @@ class Scope{
         std::cout <<"\n"<< std::string((depth) * 5, ' ')<<"Namespaces:\n";
         printNamespaces(depth);
         if(!statements.empty()){
-            //std::cout << std::string((depth) * 5, ' ')<< "Statements: ";
-            for(Token statement : statements){
-                std::cout<<statement.weight<<displayType(statement.type)<<" ";
-            }
             for(std::vector<Token> statement : statementsTokens){
-                std::cout << "\n";
                 std::cout << std::string(depth * 5, ' ') <<"Tokens: ";
                 for(Token token : statement){
                     std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
                 }
+                std::cout << "\n";
             }
         }
         std::cout<<"\n";
@@ -108,28 +114,45 @@ class Scope{
 
             exprStack.push(new Node(op, left, right));
         };
+    
+    void addExpected(Token token, std::vector<pair>& expected){
+        if (token.type == ARRAY) {
+            std::cout<<"arr\n";
+            expected.push_back(pair(Token("[]", SCOPE), false));
+        } else if (token.type == FUNCTION_DECLARATION) {
+            std::cout<<"func\n";
+            expected.push_back(pair(Token("()", SCOPE), true));
+            expected.push_back(pair(Token("{}", SCOPE), false));
+        } else if (token.type == CLASS) {
+            std::cout<<"class\n";
+            expected.push_back(pair(Token("()", SCOPE), false));
+            expected.push_back(pair(Token("{}", SCOPE), true));
+        } else if (token.type == IDENTIFIER){
+            addExpected(*findInNamespace(token.value), expected);
+        }
+    }
 
-    Node* parse(std::vector<Token> statement, std::map<Token, bool> expected = {}){
+    Node* parse(std::vector<Token> statement, std::vector<pair> expected = {}){
         for (const Token& token : statement) {
-            //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
+            std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             if(!expected.empty()){
                 std::cout <<"clearing expected";
                 expected = {};
             } else if (token.type == SCOPE) {
-                exprStack.push(new Node(scopes[token.weight] -> interpret()));
+                Token scope = scopes[token.weight] -> interpret();
+                addExpected(scope, expected);
+                exprStack.push(new Node(scope));
             } else if (token.type == ARRAY) {
-                std::cout<<"arr\n";
-                expected.insert({Token("[]", SCOPE), false});
+                addExpected(token, expected);
                 exprStack.push(new Node(token));
             } else if (token.type == FUNCTION_DECLARATION) {
-                expected.insert({Token("()", SCOPE), true});
-                expected.insert({Token("{}", SCOPE), false});
+                addExpected(token, expected);
                 exprStack.push(new Node(token));
             } else if (token.type == CLASS) {
-                expected.insert({Token("()", SCOPE), false});
-                expected.insert({Token("{}", SCOPE), true});
+                addExpected(token, expected);
                 exprStack.push(new Node(token));
             } else if (token.type == INT || token.type == FLOAT || token.type == IDENTIFIER) {
+                addExpected(token, expected);
                 exprStack.push(new Node(token));
             } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
                 while (!operatorStack.empty() && 
