@@ -29,9 +29,9 @@ bool isKeyword(std::string str) {
     return keywords.find(str)!=keywords.end();
 }
 
-bool isDatatype(std::string str){
-    return dataTypes.find(str)!=dataTypes.end();
-}
+// bool isDatatype(std::string str){
+//     return dataTypes.find(str)!=dataTypes.end();
+// }
 
 // bool isLoop(std::string str){
 //     return dataTypes.find(str)!=dataTypes.end();

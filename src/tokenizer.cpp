@@ -23,10 +23,10 @@ void addMinus(std::vector<Token> &tokens){
     }
 }
 
-void addAssign(Token token, std::vector<Token> &tokens, bool strong = false){
+void addAssign(Token token, std::vector<Token> &tokens){
     if(!tokens.empty()){
         Token temp = tokens.back();
-        tokens.push_back((strong)?locked["~STRONG_ASSIGN"]:locked["~ASSIGN"]);
+        tokens.push_back(locked["~ASSIGN"]);
         tokens.push_back(temp);
         tokens.push_back(token);
     }
@@ -69,11 +69,17 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
             if(str=="~INCREMENT"){
-                addAssign(locked["~INCREMENT"], tokens, true);
+                int temp = tokens.size()-1;
+                addAssign(locked["~ADDASSIGN"], tokens);
                 tokens.push_back(Token("1", INT));
-            } else if(str=="~INCREMENT"){
-                addAssign(locked["~DECREMENT"], tokens, true);
+                tokens.insert(tokens.begin()+temp, locked["~BRACKETOPEN"]);
+                tokens.push_back(locked["~BRACKETCLOSE"]);
+            } else if(str=="~DECREMENT"){
+                int temp = tokens.size()-1;
+                addAssign(locked["~SUBASSIGN"], tokens);
                 tokens.push_back(Token("1", INT));
+                tokens.insert(tokens.begin()+temp, locked["~BRACKETOPEN"]);
+                tokens.push_back(locked["~BRACKETCLOSE"]);
             } else if(str=="~ADDASSIGN"){
                 addAssign(locked["~ADDASSIGN"], tokens);
             } else if(str=="~SUBASSIGN"){

@@ -130,10 +130,6 @@ std::map<std::string, Token> locked = {
     {"~END", Token(";", END)},
     {"~ENDLINE", Token("\n", ENDLINE)},
 
-    {"~STRONG_ASSIGN", Token("=", ASSIGN, -values[5])},
-    {"~INCREMENT", Token("+", ARITMETIC_OPERATOR, -values[4])},
-    {"~INCREMENT", Token("-", ARITMETIC_OPERATOR, -values[4])},
-
     {"~ASSIGN", Token("=", ASSIGN, -values[3])},
     {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, -values[1])},
     {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, -values[1])},
@@ -302,40 +298,10 @@ std::set<std::string> keywords = {
     "delete",
     };
 
-std::map<std::string, int> enumerateKeywords = {
-        {"include", 1},
-        {"return", 2},
-
-        {"int", 3},
-        {"float", 4},
-        {"char", 5},
-        {"bool", 6},
-        {"void", 7},
-
-        {"if", 8},
-        {"else", 9},
-        {"switch", 10},
-        {"case", 11},
-        {"for", 12},
-        {"while", 13},
-        {"do", 14},
-
-        {"break", 15},
-        {"continue", 16},
-        {"struct", 17},
-        {"class", 18},
-        {"public", 19},
-        {"private", 20},
-        {"protected", 21},
-        {"const", 22},
-        {"new", 23},
-        {"delete", 24}
-    };
-
-std::set<std::string> dataTypes = {
-    "int",
-    "float",
-    "char",
-    "bool",
-    "void"
-};
+// std::set<std::string> dataTypes = {
+//     "int",
+//     "float",
+//     "char",
+//     "bool",
+//     "void"
+// };
