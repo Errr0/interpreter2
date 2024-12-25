@@ -150,9 +150,8 @@ class Scope{
     }
 
     void processExpected(Token& token, Token& last, std::vector<pair> &expected){
-        
-        std::cout <<"Token: ";displayToken(token);
-        std::cout <<"Last: ";displayToken(last);
+        //std::cout <<"Token: ";displayToken(token);
+        //std::cout <<"Last: ";displayToken(last);
         if(token.type == NUL || last.type == NUL){
             std::cerr<<"ERROR unexpected null value";
             return;
@@ -165,7 +164,7 @@ class Scope{
                         //exprStack.pop();
                         //exprStack.push(new Node(Arrays[last.weight][stoi(scope.value)]));
                         exprStack.top()->token = Arrays[last.weight][stoi(scope.value)];
-                        displayToken(Arrays[last.weight][stoi(scope.value)]);
+                        //displayToken(Arrays[last.weight][stoi(scope.value)]);
                     } else{
                         std::cerr<<"ERROR out of array scope";
                         exprStack.pop();
@@ -190,6 +189,7 @@ class Scope{
 
     Node* parse(std::vector<Token> statement){
         std::vector<pair> expected = {};
+        bool skip = false;
         for (Token& token : statement) {
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             while(!expected.empty()){
@@ -200,43 +200,48 @@ class Scope{
                     //std::cout<<"done\n";
                     expected.erase(expected.begin());
                     std::cout<<"removed\n";
-                    continue;
-                    std::cout<<"not continued\n";
+                    skip = true;
                 } else if(expected.front().required){
                     std::cerr<<"ERROR token expected: ";displayToken(expected.front().token);
                     return nullptr;
                 }
             }
-            if (token.type == SCOPE) {
-                Token scope = scopes[token.weight] -> interpret();
-                addExpected(scope, expected);
-                exprStack.push(new Node(scope));
-            if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || 
-    token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
-    addExpected(token, expected);
-    exprStack.push(new Node(token));
-}
-            } else if (token.type == INT || token.type == FLOAT) {
-                exprStack.push(new Node(token));
-            } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
-                while (!operatorStack.empty() && 
-                    operatorStack.top().type != BRACKET_OPEN &&
-                    operatorStack.top().weight >= token.weight) {
-                    processOperator();
+            if(skip){
+                skip = false;
+            } else{
+                if (token.type == SCOPE) {
+                    Token scope = scopes[token.weight] -> interpret();
+                    addExpected(scope, expected);
+                    exprStack.push(new Node(scope));
+                } else if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
+                    addExpected(token, expected);
+                    exprStack.push(new Node(token));
+                } else if (token.type == INT || token.type == FLOAT) {
+                    exprStack.push(new Node(token));
+                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
+                    while (!operatorStack.empty() && 
+                        operatorStack.top().type != BRACKET_OPEN &&
+                        operatorStack.top().weight >= token.weight) {
+                        processOperator();
+                    }
+                    operatorStack.push(token);
+                } else {
+                    std::cerr << "PARSER ERROR: Unknown token type! "<<displayTokenType(token.type)<<"\n";
+                    return nullptr;
                 }
-                operatorStack.push(token);
-            } else {
-                std::cerr << "PARSER ERROR: Unknown token type! "<<displayTokenType(token.type)<<"\n";
-                return nullptr;
             }
         }
+            
         // Process remaining operators
         while (!operatorStack.empty()) {
             processOperator();
         }
         if (exprStack.size() != 1) {
             std::cerr << "PARSER ERROR: Malformed expression!\n";
-
+            while(!exprStack.empty()){
+                displayToken(exprStack.top()->token);
+                exprStack.pop();
+            }
             return nullptr;
         }
         Node* return_value = exprStack.top();

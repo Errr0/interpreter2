@@ -5,13 +5,10 @@ void interpreter(std::string& code){
     std::vector<Token> tokens;
     splitString(code, operators, strings);
     tokenize(strings, tokens);
-
     Scope root = makeScopeTree(tokens);
-    root.print();
     Token output = root.interpret();
-
+    //displayToken(output);
+    //root.print();
+    std::cout<<"\nprocess returned:\n";
     displayToken(output);
-    std::cout<<"\n";
-    root.print();
-    std::cout<<"done\n";
 }
