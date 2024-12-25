@@ -44,7 +44,7 @@ class Scope{
     Node* root;
     std::string type;
     std::vector<Token> tokens;
-    std::vector<Token> statements;
+    std::vector<Token> statements;//to delete
     std::vector<std::vector<Token>> statementsTokens;
     std::vector<std::unique_ptr<Scope>> scopes;
 
@@ -75,6 +75,13 @@ class Scope{
         scopes.emplace_back(std::make_unique<Scope>(scopeType, namespaces));
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
         return scopes.back().get();
+    }
+
+    void copy(Scope& second){
+        this->tokens = second.tokens;
+        this->statements = second.statements;
+        this->statementsTokens = second.statementsTokens;
+        this->scopes = second.scopes;
     }
 
     void printNamespaces(int depth = 0){
@@ -129,27 +136,27 @@ class Scope{
             exprStack.push(new Node(op, left, right));
         };
     
-    void addExpected(Token& token, std::vector<pair> &expected){
+    void addExpected(Token& token, std::queue<pair> &expected){
         if (token.type == ARRAY) {
-            expected.push_back(pair(Token("[]", SCOPE), false));
+            expected.push(pair(Token("[]", SCOPE), false));
             //std::cout<<expected[expected.size()-1].token.value;
         } else if (token.type == FUNCTION_DECLARATION) {
-            expected.push_back(pair(Token("()", SCOPE), true));
-            expected.push_back(pair(Token("{}", SCOPE), true));
+            expected.push(pair(Token("()", SCOPE), true));
+            expected.push(pair(Token("{}", SCOPE), true));
         } else if (token.type == FUNCTION) {
-            expected.push_back(pair(Token("()", SCOPE), true));
+            expected.push(pair(Token("()", SCOPE), true));
         } else if (token.type == CLASS) {
-            expected.push_back(pair(Token("()", SCOPE), false));
-            expected.push_back(pair(Token("{}", SCOPE), true));
+            expected.push(pair(Token("()", SCOPE), false));
+            expected.push(pair(Token("{}", SCOPE), true));
         } else if (token.type == CLASS) {
-            expected.push_back(pair(Token("()", SCOPE), false));
-            expected.push_back(pair(Token(".", DOT), false));
+            expected.push(pair(Token("()", SCOPE), false));
+            expected.push(pair(Token(".", DOT), false));
         } else if (token.type == IDENTIFIER){
             addExpected(*findInNamespace(token.value), expected);
         }
     }
 
-    void processExpected(Token& token, Token& last, std::vector<pair> &expected){
+    void processExpected(Token& token, Token& last, std::queue<pair> &expected){
         //std::cout <<"Token: ";displayToken(token);
         //std::cout <<"Last: ";displayToken(last);
         if(token.type == NUL || last.type == NUL){
@@ -173,7 +180,25 @@ class Scope{
                 }
             }
         } else if(last.type == FUNCTION_DECLARATION){
-            
+            if(token.type == SCOPE && token.value == "()"){
+                functions.push_back(Scope("function", namespaces));
+                last.weight = functions.size()-1;
+                Token scope = scopes[token.weight] -> interpret();
+                functions[last.weight].ScopeNamespace = scopes[token.weight] -> ScopeNamespace;
+                // if(scope.type == ARRAY){
+                //     functions[last.weight].tokens = Arrays[scope.type];
+                // } else if(scope.type == IDENTIFIER){
+                //     functions[last.weight].tokens.push_back(scope);
+                // }
+                // functions[last.weight].makeStatement("arguments");
+            } else if(token.type == SCOPE && token.value == "{}"){
+                if(last.weight == -1){
+                    std::cerr<<"ERROR expected () after function name\n";
+                } else{
+                    functions[last.weight].copy(*scopes[token.weight]);
+                }
+                exprStack.pop();
+            }
         } else if(last.type == FUNCTION){
             
         } else if(last.type == CLASS){
@@ -188,7 +213,7 @@ class Scope{
     }
 
     Node* parse(std::vector<Token> statement){
-        std::vector<pair> expected = {};
+        std::queue<pair> expected = {};
         bool skip = false;
         for (Token& token : statement) {
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
@@ -198,9 +223,10 @@ class Scope{
                     Token last = (*exprStack.top()).token;
                     processExpected(token, last, expected);
                     //std::cout<<"done\n";
-                    expected.erase(expected.begin());
+                    expected.pop();
                     //std::cout<<"removed\n";
                     skip = true;
+                    break;
                 } else if(expected.front().required){
                     std::cerr<<"ERROR token expected: ";displayToken(expected.front().token);
                     return nullptr;
@@ -216,7 +242,7 @@ class Scope{
                 } else if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
                     addExpected(token, expected);
                     exprStack.push(new Node(token));
-                } else if (token.type == INT || token.type == FLOAT) {
+                } else if (token.type == INT || token.type == FLOAT || token.type == STRING) {
                     exprStack.push(new Node(token));
                 } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
                     while (!operatorStack.empty() && 
@@ -267,7 +293,7 @@ class Scope{
             return node->token;
         } else if(node->token.type == ARRAY){
             return node->token;
-        } else if(node->token.type == INT || node->token.type == FLOAT){
+        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == STRING){
             return node->token;
         } else{
             Token right, left;

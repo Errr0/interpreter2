@@ -1,6 +1,5 @@
-def a(g)->/*return type(can by array)*/{
-    return g++;
-    }//array
-    1+2;
-    "Hello world!";
-    z="World hello!";
+def a(x){
+    x++;
+}
+"Hello world!";
+z="World hello!";

@@ -5,10 +5,11 @@ void interpreter(std::string& code){
     eraseBetween(code, "//", "\n");
     std::string stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
     while(stringLiteral!=""){
+        //std::cout<<stringLiteral<<"\n";
         StringsLiterals.push(stringLiteral);
-        std::string stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
+        stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
     }
-    std::cout<<"\n"<<code<<"\n";
+    //std::cout<<"\n"<<code<<"\n";
 
     std::vector<std::string> strings;
     std::vector<Token> tokens;

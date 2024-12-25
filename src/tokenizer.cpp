@@ -48,13 +48,14 @@ void addKeyword(std::string str, std::vector<Token> &tokens){
 
 void addIdentifier(std::string str, std::vector<Token> &tokens){
     if(isKeyword(str)){
-        addKeyword(str, tokens);    
+        tokens.push_back(Token(str,KEYWORD));
+        //addKeyword(str, tokens);    
     } else {
         if(!tokens.empty()){
             if(tokens.back().type == KEYWORD){
                 if(tokens.back().value == "def"){
                     tokens.pop_back();
-                    tokens.push_back(Token(str,FUNCTION_DECLARATION));
+                    tokens.push_back(Token(str,FUNCTION_DECLARATION, -1));
                     return;
                 } else if(tokens.back().value == "class"){
                     tokens.pop_back();
