@@ -125,3 +125,12 @@ void tokenizer(std::string &input, std::vector<std::vector<Token>> &output){
             output.push_back(tokens);
     }
 }
+
+void displayToken(Token token, int depth = 0){
+    std::cout << std::string(depth * 5, ' ') << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
+     if(token.type == ARRAY){
+        for(Token token : Arrays[token.weight]){
+            displayToken(token, depth+1);
+        }
+    }
+}
