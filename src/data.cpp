@@ -10,6 +10,7 @@
 #include <set>
 #include <memory>
 #include <stack>
+#include <queue>
 
 enum TokenType {
     END,
@@ -21,6 +22,7 @@ enum TokenType {
     VOID,
     INT,
     FLOAT,
+    STRING,
     IDENTIFIER,
     KEYWORD,
     BRACKET_OPEN,
@@ -92,6 +94,7 @@ std::string displayTokenType(TokenType token) {
         case SCOPE: return "SCOPE";
         case STATEMENT: return "STATEMENT";
         case ARRAY: return "ARRAY";
+        case STRING: return "STRING";
         default: return "UNKNOWN";
     }
 }
@@ -120,6 +123,7 @@ std::string displayType(TokenType token) {
         case WHITESPACE: return "";
         case AMPERSAND: return "";
         case SCOPE: return "s";
+        case STRING: return "str";
         default: return "";
     }
 }

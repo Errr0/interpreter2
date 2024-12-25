@@ -1,5 +1,7 @@
 #include "strings.cpp"
 
+std::queue<std::string> StringsLiterals;
+
 void addNumberToken(std::string str, std::vector<Token> &tokens){
     if(tokens.size()>=2){
         if((tokens[tokens.size() - 1].type == DOT && tokens[tokens.size() - 2].type == INT) || tokens[tokens.size() - 1].type == INT){
@@ -68,7 +70,10 @@ void addIdentifier(std::string str, std::vector<Token> &tokens){
 void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
-            if(str=="~INCREMENT"){
+            if(str=="~STRING"){
+                tokens.push_back(Token(StringsLiterals.front(), STRING));
+                StringsLiterals.pop();
+            } else if(str=="~INCREMENT"){
                 int temp = tokens.size()-1;
                 addAssign(locked["~ADDASSIGN"], tokens);
                 tokens.push_back(Token("1", INT));
