@@ -8,7 +8,7 @@ void interpreter(std::string& code){
     Scope root = makeScopeTree(tokens);
     Token output = root.interpret();
     //displayToken(output);
-    //root.print();
+    root.print();
     std::cout<<"\nprocess returned:\n";
     displayToken(output);
 }

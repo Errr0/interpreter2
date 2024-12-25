@@ -64,10 +64,10 @@ class Scope{
         tokens.push_back(token);
     }
 
-    void makeStatement(){
+    void makeStatement(std::string type){
         statementsTokens.push_back(tokens);
         tokens.clear();
-        statements.push_back(Token(";", STATEMENT, statementsTokens.size()-1));
+        statements.push_back(Token(type, STATEMENT, statementsTokens.size()-1));
         
     }
 
@@ -194,12 +194,12 @@ class Scope{
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             while(!expected.empty()){
                 if(token.value == expected.front().token.value && token.type == expected.front().token.type){
-                    std::cout<<"processing expected\n";
+                    //std::cout<<"processing expected\n";
                     Token last = (*exprStack.top()).token;
                     processExpected(token, last, expected);
                     //std::cout<<"done\n";
                     expected.erase(expected.begin());
-                    std::cout<<"removed\n";
+                    //std::cout<<"removed\n";
                     skip = true;
                 } else if(expected.front().required){
                     std::cerr<<"ERROR token expected: ";displayToken(expected.front().token);
@@ -346,7 +346,7 @@ class Scope{
                 // std::cout<<"statement returned ";displayToken(output.back());
                 // std::cout<<"current namespace \n";printNamespaces();
             }
-        } 
+        }
 
         if(!tokens.empty()){
             output.push_back(interpretTree(parse(tokens)));
@@ -370,10 +370,10 @@ Scope makeScopeTree(std::vector<Token>& tokens) {
     Scope* currentScope = &root;
     std::stack<Scope*> scopeStack;
     for (const Token& token : tokens) {
-        if (token.type != BRACKET_OPEN && token.type != BRACKET_CLOSE && token.type != END) {
+        if (token.type != BRACKET_OPEN && token.type != BRACKET_CLOSE && token.type != END && token.type != COMMA) {
             currentScope->appendToken(token);
-        } else if (token.type == END){
-            currentScope->makeStatement();
+        } else if (token.type == END || token.type == COMMA){
+            currentScope->makeStatement((token.type == END)?";":",");
         } else if (token.type == BRACKET_OPEN) {
             std::string type;
             if (token.value == "{") type = "{}";
