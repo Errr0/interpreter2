@@ -12,6 +12,6 @@ void interpreter(std::string& code){
 
     displayToken(output);
     std::cout<<"\n";
-
+    root.print();
     std::cout<<"done\n";
 }
