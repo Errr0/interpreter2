@@ -356,7 +356,7 @@ class Scope{
             return output.back();
         } else if(output.size() > 1){
             Arrays.push_back(output);
-            return Token("array", ARRAY, Arrays.size()-1);
+            return Token(type, ARRAY, Arrays.size()-1);
         } else {
             std::cerr<<"INTERPRETING ERROR no outputs\n";
             return Token("null",NUL);
