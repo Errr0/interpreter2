@@ -69,16 +69,20 @@ std::string displayTokenType(TokenType token) {
     switch (token) {
         case END: return "END";
         case ENDLINE: return "ENDLINE";
-        case ASSIGN: return "ASSIGN";
+        case WHITESPACE: return "WHITESPACE";
         case ARITMETIC_OPERATOR: return "ARITMETIC_OPERATOR";
+        case ASSIGN: return "ASSIGN";
         case LOGICAL_OPERATOR: return "LOGICAL_OPERATOR";
         case VOID: return "VOID";
         case INT: return "INT";
         case FLOAT: return "FLOAT";
+        case STRING: return "STRING";
         case IDENTIFIER: return "IDENTIFIER";
         case KEYWORD: return "KEYWORD";
         case BRACKET_OPEN: return "BRACKET_OPEN";
         case BRACKET_CLOSE: return "BRACKET_CLOSE";
+        case INCREMENT: return "INCREMENT";
+        case DECREMENT: return "DECREMENT";
         case QUOTATION: return "QUOTATION";
         case QUESTIONMARK: return "QUESTIONMARK";
         case COMMA: return "COMMA";
@@ -87,14 +91,18 @@ std::string displayTokenType(TokenType token) {
         case BACKSLASH: return "BACKSLASH";
         case DOUBLESLASH: return "DOUBLESLASH";
         case HASHTAG: return "HASHTAG";
-        case WHITESPACE: return "WHITESPACE";
-        case DECLARATION: return "DECLARATION";
-        case VARIABLE: return "VARIABLE";
-        case NUL: return "NULL";
+        case AMPERSAND: return "AMPERSAND";
         case SCOPE: return "SCOPE";
         case STATEMENT: return "STATEMENT";
         case ARRAY: return "ARRAY";
-        case STRING: return "STRING";
+        case VARIABLE: return "VARIABLE";
+        case FUNCTION: return "FUNCTION";
+        case FUNCTION_DECLARATION: return "FUNCTION_DECLARATION";
+        case CLASS: return "CLASS";
+        case OBJECT: return "OBJECT";
+        case NUL: return "NULL";
+        case DATATYPE: return "DATATYPE";
+        case DECLARATION: return "DECLARATION";
         default: return "UNKNOWN";
     }
 }

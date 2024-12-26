@@ -21,4 +21,7 @@ void interpreter(std::string& code){
     root.print();
     std::cout<<"\nprocess returned:\n";
     displayToken(output);
+    // for(Scope function:functions){
+    //     function.printNamespaces();
+    // }
 }

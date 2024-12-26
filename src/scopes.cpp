@@ -27,8 +27,8 @@ void displayToken(Token token, int depth = 0){
 }
 
 std::map<std::string, Token> GlobalNamespace = {
-    {"_", Token("0", INT)},
-    {"a", Token("2", INT)}
+    //{"", Token("0", INT)}
+    //{"a", Token("2", INT)}
 };
 
 std::map<std::string, Token> BuildInNamespace = {
@@ -46,7 +46,7 @@ class Scope{
     std::vector<Token> tokens;
     std::vector<Token> statements;//to delete
     std::vector<std::vector<Token>> statementsTokens;
-    std::vector<std::unique_ptr<Scope>> scopes;
+    std::vector<Scope*> scopes;
 
     std::stack<Token> operatorStack;
     std::stack<Node*> exprStack;
@@ -72,16 +72,16 @@ class Scope{
     }
 
     Scope* appendScope(const std::string& scopeType) {
-        scopes.emplace_back(std::make_unique<Scope>(scopeType, namespaces));
+        scopes.push_back(new Scope(scopeType, namespaces));
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
-        return scopes.back().get();
+        return scopes.back();
     }
 
-    void copy(Scope& second){
-        this->tokens = second.tokens;
-        this->statements = second.statements;
-        this->statementsTokens = second.statementsTokens;
-        this->scopes = second.scopes;
+    void copy(Scope* second){
+        this->tokens = second->tokens;
+        this->statements = second->statements;
+        this->statementsTokens = second->statementsTokens;
+        this->scopes = second->scopes;
     }
 
     void printNamespaces(int depth = 0){
@@ -181,8 +181,10 @@ class Scope{
             }
         } else if(last.type == FUNCTION_DECLARATION){
             if(token.type == SCOPE && token.value == "()"){
+                std::cout<<"()\n";
                 functions.push_back(Scope("function", namespaces));
                 last.weight = functions.size()-1;
+                std::cout<<last.weight<<"\n";
                 Token scope = scopes[token.weight] -> interpret();
                 functions[last.weight].ScopeNamespace = scopes[token.weight] -> ScopeNamespace;
                 // if(scope.type == ARRAY){
@@ -192,15 +194,19 @@ class Scope{
                 // }
                 // functions[last.weight].makeStatement("arguments");
             } else if(token.type == SCOPE && token.value == "{}"){
+                std::cout<<last.weight<<"\n";
                 if(last.weight == -1){
                     std::cerr<<"ERROR expected () after function name\n";
                 } else{
-                    functions[last.weight].copy(*scopes[token.weight]);
+                    functions[last.weight].copy(scopes[token.weight]);
                 }
+                ScopeNamespace.insert({last.value, Token("", FUNCTION, last.weight)});
                 exprStack.pop();
             }
         } else if(last.type == FUNCTION){
-            
+            if(token.type == SCOPE && token.value == "()"){
+                std::cout<<"function call\n";
+            }
         } else if(last.type == CLASS){
             
         } else if(last.type == OBJECT){
@@ -219,17 +225,19 @@ class Scope{
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             while(!expected.empty()){
                 if(token.value == expected.front().token.value && token.type == expected.front().token.type){
-                    //std::cout<<"processing expected\n";
                     Token last = (*exprStack.top()).token;
-                    processExpected(token, last, expected);
-                    //std::cout<<"done\n";
+                    processExpected(token, (*exprStack.top()).token, expected);
                     expected.pop();
-                    //std::cout<<"removed\n";
                     skip = true;
                     break;
                 } else if(expected.front().required){
                     std::cerr<<"ERROR token expected: ";displayToken(expected.front().token);
+                    std::cerr<<"ERROR token given: ";displayToken(token);
+                    std::cerr<<"ERROR token last: ";displayToken((*exprStack.top()).token);
                     return nullptr;
+                }else{
+                    std::cout<<"token not required\n";
+                    expected.pop();
                 }
             }
             if(skip){
