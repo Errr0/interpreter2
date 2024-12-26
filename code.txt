@@ -3,3 +3,5 @@ def a(x){
 }
 "Hello world!";
 z="World hello!";
+e = 4;
+e = a(e);

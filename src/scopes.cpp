@@ -181,12 +181,12 @@ class Scope{
             }
         } else if(last.type == FUNCTION_DECLARATION){
             if(token.type == SCOPE && token.value == "()"){
-                std::cout<<"()\n";
-                functions.push_back(Scope("function", namespaces));
+                scopes[token.weight]->interpret();
+                scopes[token.weight]->type = "function";
+                functions.push_back(*scopes[token.weight]);
                 last.weight = functions.size()-1;
-                std::cout<<last.weight<<"\n";
-                Token scope = scopes[token.weight] -> interpret();
-                functions[last.weight].ScopeNamespace = scopes[token.weight] -> ScopeNamespace;
+                //std::cout<<last.weight<<"\n";
+                //functions[last.weight].ScopeNamespace = scopes[token.weight] -> ScopeNamespace;
                 // if(scope.type == ARRAY){
                 //     functions[last.weight].tokens = Arrays[scope.type];
                 // } else if(scope.type == IDENTIFIER){
@@ -200,12 +200,50 @@ class Scope{
                 } else{
                     functions[last.weight].copy(scopes[token.weight]);
                 }
-                ScopeNamespace.insert({last.value, Token("", FUNCTION, last.weight)});
+                ScopeNamespace.insert({last.value, Token(last.value, FUNCTION, last.weight)});//std::to_string(functions[last.weight].ScopeNamespace.size())
                 exprStack.pop();
             }
         } else if(last.type == FUNCTION){
             if(token.type == SCOPE && token.value == "()"){
-                std::cout<<"function call\n";
+                //std::cout<<"function call\n";
+                Token scope = scopes[token.weight] -> interpret();
+                displayToken(scope);
+                if(scope.type == ARRAY){
+                    if(Arrays[scope.weight].size()>(int)functions[last.weight].ScopeNamespace.size()){
+                        std::cerr<<"ERROR too many arguments passed to function. Number of arguments passed: "<<Arrays[scope.weight].size()<<" expected: "<<functions[last.weight].ScopeNamespace.size()<<"\n";
+                    } else{
+                        // std::cout<<"array\n";
+                        auto iterator = functions[last.weight].ScopeNamespace.begin();
+                        for(int i = 0; i < std::min(Arrays[scope.weight].size(), functions[last.weight].ScopeNamespace.size()); i++){
+                            iterator->second = Arrays[scope.weight][i];
+                            std::advance(iterator, 1);
+                        }
+                    }
+                } else if(scope.type == IDENTIFIER){
+                    // std::cout<<"identifier\n";
+                    if(1>functions[last.weight].ScopeNamespace.size()){
+                        std::cerr<<"ERROR too many arguments passed to function. Number of arguments passed: "<<Arrays[scope.weight].size()<<" expected: "<<functions[last.weight].ScopeNamespace.size()<<"\n";
+                    } else{
+                        displayToken(functions[last.weight].ScopeNamespace.begin()->second);
+                        functions[last.weight].ScopeNamespace.begin()->second = *findInNamespace(scope.value);
+                        displayToken(functions[last.weight].ScopeNamespace.begin()->second);
+                    }
+                } else if(scope.type == INT || scope.type == FLOAT){
+                    // std::cout<<"int,float\n";
+                    if(1>functions[last.weight].ScopeNamespace.size()){
+                        std::cerr<<"ERROR too many arguments passed to function. Number of arguments passed: "<<Arrays[scope.weight].size()<<" expected: "<<functions[last.weight].ScopeNamespace.size()<<"\n";
+                    } else{
+                        functions[last.weight].ScopeNamespace.begin()->second = scope;
+                    }
+                }
+                // std::cout<<"pooping\n";
+                exprStack.pop();
+                // std::cout<<"pushing\n";
+                printNamespaces();
+                Token temp = functions[last.weight].interpret();//error here     terminate called after throwing an instance of 'std::logic_error'      what():  basic_string: construction from null is not valid
+                displayToken(temp);
+                exprStack.push(new Node(temp));
+                std::cout<<"done\n";
             }
         } else if(last.type == CLASS){
             

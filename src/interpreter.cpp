@@ -19,9 +19,9 @@ void interpreter(std::string& code){
     Token output = root.interpret();
     //displayToken(output);
     root.print();
-    std::cout<<"\nprocess returned:\n";
+    std::cout<<"\nprocess returned: ";
     displayToken(output);
-    // for(Scope function:functions){
-    //     function.printNamespaces();
-    // }
+    for(Scope function:functions){
+        function.print();
+    }
 }
