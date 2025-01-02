@@ -1,8 +1,9 @@
-def a(x=1){
-    x++;
+def add(x, c){
+    x+c;
 }
 "Hello world!";
+x=1;
 z="World hello!";
+x++;
 e = 4;
-a(2);
-//e = a(e);
+add(e, x);

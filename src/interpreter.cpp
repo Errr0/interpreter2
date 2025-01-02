@@ -2,9 +2,9 @@
 
 void interpreter(std::string& code){
     code+="\n";
-    eraseBetween(code, "/*", "*/"); 
-    eraseBetween(code, "//", "\n");
-    //std::cout<<code<<"|\n";
+    while(eraseBetween(code, "/*", "*/")); 
+    while(eraseBetween(code, "//", "\n"));
+    std::cout<<code<<"~~\n";
     std::string stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
     while(stringLiteral!=""){
         //std::cout<<stringLiteral<<"\n";
@@ -23,7 +23,7 @@ void interpreter(std::string& code){
     root.print();
     std::cout<<"\nprocess returned: ";
     displayToken(output);
-    for(Scope function:functions){
-        function.print();
-    }
+    // for(Scope function:functions){
+    //     function.print();
+    // }
 }
