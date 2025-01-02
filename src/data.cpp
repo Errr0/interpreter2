@@ -182,7 +182,7 @@ std::map<std::string, Token> locked = {
     {"~BACKSLASH", Token("\\", BACKSLASH)},
     {"~DOUBLESLASH", Token("//", DOUBLESLASH)},
     {"~HASHTAG", Token("#", HASHTAG)},
-    {"~AMPERSAND", Token("&", AMPERSAND)},
+    {"~AMPERSAND", Token("&", AMPERSAND, values[5])},
 
     {"~SPACE", Token(" ", WHITESPACE)},
     {"~TAB", Token("\t", WHITESPACE)}

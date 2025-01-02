@@ -218,15 +218,17 @@ class Scope{
                                 std::cerr<<"ERROR too many arguments passed to function. Number of arguments passed: "<<Arrays[scope.weight].size()<<" expected: "<<functions[last.weight].ScopeNamespace.size()<<"\n";
                             }
                             for(long long unsigned int i = 0; i < std::min(Arrays[scope.weight].size(), Arrays[functions[last.weight].findInNamespace("~~arguments~~")->weight].size()); i++){
-                                if(scope.type == IDENTIFIER){
+                                if(Arrays[scope.weight][i].type == IDENTIFIER){
                                     *functions[last.weight].findInNamespace(Arrays[functions[last.weight].findInNamespace("~~arguments~~")->weight][i].value) = *findInNamespace(Arrays[scope.weight][i].value);
                                 } else{
                                     *functions[last.weight].findInNamespace(Arrays[functions[last.weight].findInNamespace("~~arguments~~")->weight][i].value) = Arrays[scope.weight][i];
                                 }
                             }
-                        } else{
-                            if(functions[last.weight].findInNamespace("~~arguments~~")->type == VARIABLE){
-                                *functions[last.weight].findInNamespace(functions[last.weight].findInNamespace("~~arguments~~")->value) = scope;
+                        } else if(functions[last.weight].findInNamespace("~~arguments~~")->type == IDENTIFIER){
+                            if(Arrays[scope.weight][0].type == IDENTIFIER){
+                                *functions[last.weight].findInNamespace(functions[last.weight].findInNamespace("~~arguments~~")->value) = *findInNamespace(Arrays[scope.weight][0].value);
+                            } else{
+                                *functions[last.weight].findInNamespace(functions[last.weight].findInNamespace("~~arguments~~")->value) = Arrays[scope.weight][0];
                             }
                         }
                     } else if(scope.type == IDENTIFIER){
@@ -296,7 +298,7 @@ class Scope{
                     exprStack.push(new Node(token));
                 } else if (token.type == INT || token.type == FLOAT || token.type == STRING) {
                     exprStack.push(new Node(token));
-                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN) {
+                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN || token.type == AMPERSAND) {
                     while (!operatorStack.empty() && 
                         operatorStack.top().type != BRACKET_OPEN &&
                         operatorStack.top().weight >= token.weight) {
@@ -343,12 +345,12 @@ class Scope{
             //displayToken(node->token);
 
             if(findInNamespace(node->token.value) == &nullvalue){
-                std::cout<<"========================\n";
-                printNamespaces();
-                std::cout<<"new identifier ";displayToken(node->token);
+                //std::cout<<"========================\n";
+                //printNamespaces();
+                //std::cout<<"new identifier ";displayToken(node->token);
                 ScopeNamespace.insert({node->token.value, Token("null", NUL)});
-                printNamespaces();
-                std::cout<<"========================\n";
+                //printNamespaces();
+                //std::cout<<"========================\n";
             }
             return node->token;
         } else if(node->token.type == ARRAY){
@@ -361,14 +363,14 @@ class Scope{
             if (node->right) {
                 right = interpretTree(node->right);
             } else{
-                std::cout<<"ERROR interpreting no righr xdkl;lk\n";
-                //return Token();
+                std::cout<<"ERROR interpreting no righr\n";
+                return Token("null", NUL);
             }
             if (node->left) {
                 left = interpretTree(node->left);
             } else{
-                std::cout<<"ERROR interpreting no left xdkl;lk\n";
-                //return Token();
+                std::cout<<"ERROR interpreting no left\n";
+                return Token("null", NUL);
             }
             if(node->token.type == ASSIGN){
                 if(left.type == IDENTIFIER){
@@ -377,6 +379,8 @@ class Scope{
                 } else{
                     std::cout<<"assigning error\n";
                 }
+            } else if(node->token.type == AMPERSAND){
+                return *findInNamespace(right.value);
             } else if(node->token.type == ARITMETIC_OPERATOR){
                 if(left.type == IDENTIFIER){
                     left = *findInNamespace(left.value);

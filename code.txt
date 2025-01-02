@@ -1,9 +1,9 @@
-def add(x, c){
-    x+c;
+def add(){
+    8;
 }
 "Hello world!";
 x=1;
 z="World hello!";
 x++;
 e = 4;
-add(e, x);
+add(e);

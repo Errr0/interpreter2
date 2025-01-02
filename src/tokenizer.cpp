@@ -98,6 +98,9 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 addAssign(locked["~MODASSIGN"], tokens);
             } else if(str=="~MINUS"){
                 addMinus(tokens);
+            } else if(str=="~AMPERSAND"){
+                addNumberToken("0", tokens);
+                tokens.push_back(locked[str]);
             } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{
