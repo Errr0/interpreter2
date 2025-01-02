@@ -1,26 +1,13 @@
 #include "parser.cpp"
 
-class Scope;
-
-class pair{
-    public:
-    Token token;
-    bool required;
-    pair(Token token, bool required = false){
-        this->token = token;
-        this->required = required;
-    }
-};
-
-std::vector<std::vector<Token>> Arrays;
-std::vector<Scope> functions;
-std::vector<Scope> classes;
-std::vector<Scope> objects;//to do garbage collection
-
 void displayToken(Token token, int depth = 0){
     std::cout << std::string(depth * 5, ' ') << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
      if(token.type == ARRAY){
         for(Token token : Arrays[token.weight]){
+            displayToken(token, depth+1);
+        }
+    } else if(token.type == STRING){
+        for(Token token : Strings[token.weight]){
             displayToken(token, depth+1);
         }
     }
@@ -296,7 +283,7 @@ class Scope{
                 } else if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
                     addExpected(token, expected);
                     exprStack.push(new Node(token));
-                } else if (token.type == INT || token.type == FLOAT || token.type == STRING) {
+                } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
                     exprStack.push(new Node(token));
                 } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN || token.type == AMPERSAND) {
                     while (!operatorStack.empty() && 
@@ -353,9 +340,9 @@ class Scope{
                 //std::cout<<"========================\n";
             }
             return node->token;
-        } else if(node->token.type == ARRAY){
-            return node->token;
-        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == STRING){
+        // } else if(node->token.type == ARRAY){
+        //     return node->token;
+        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == STRING || node->token.type == CHAR || node->token.type == ARRAY){
             return node->token;
         } else{
             //std::cout<<"else";

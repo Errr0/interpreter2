@@ -22,6 +22,7 @@ enum TokenType {
     VOID,
     INT,
     FLOAT,
+    CHAR,
     STRING,
     IDENTIFIER,
     KEYWORD,
@@ -76,6 +77,7 @@ std::string displayTokenType(TokenType token) {
         case VOID: return "VOID";
         case INT: return "INT";
         case FLOAT: return "FLOAT";
+        case CHAR: return "CHAR";
         case STRING: return "STRING";
         case IDENTIFIER: return "IDENTIFIER";
         case KEYWORD: return "KEYWORD";
@@ -309,6 +311,26 @@ std::set<std::string> keywords = {
     "new",
     "delete",
     };
+
+class Scope;
+
+class pair{
+    public:
+    Token token;
+    bool required;
+    pair(Token token, bool required = false){
+        this->token = token;
+        this->required = required;
+    }
+};
+
+std::queue<std::string> StringsLiterals;
+std::queue<std::string> Chars;
+std::vector<std::vector<Token>> Arrays;
+std::vector<std::vector<Token>> Strings;
+std::vector<Scope> functions;
+std::vector<Scope> classes;
+std::vector<Scope> objects;//to do garbage collection
 
 // std::set<std::string> dataTypes = {
 //     "int",

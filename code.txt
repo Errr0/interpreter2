@@ -1,9 +1,10 @@
-def add(){
-    8;
-}
+/*def add(a=0){
+    add(a+1);
+}*/
 "Hello world!";
 x=1;
 z="World hello!";
 x++;
 e = 4;
-add(e);
+cha = 'c';
+//add(e);

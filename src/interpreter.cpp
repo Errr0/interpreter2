@@ -9,7 +9,15 @@ void interpreter(std::string& code){
     while(stringLiteral!=""){
         //std::cout<<stringLiteral<<"\n";
         StringsLiterals.push(stringLiteral);
+
         stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
+    }
+    stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
+    while(stringLiteral!=""){
+        //std::cout<<stringLiteral<<"\n";
+        Chars.push(stringLiteral);
+
+        stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
     }
     //std::cout<<"\n"<<code<<"\n";
 
@@ -26,4 +34,5 @@ void interpreter(std::string& code){
     // for(Scope function:functions){
     //     function.print();
     // }
+    std::cout<<"DONE";
 }
