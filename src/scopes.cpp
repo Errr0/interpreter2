@@ -140,18 +140,26 @@ class Scope{
             expected.push(pair(Token("{}", SCOPE), true));
         } else if (token.type == FUNCTION) {
             expected.push(pair(Token("()", SCOPE), true));
-        } else if (token.type == CLASS) {
-            expected.push(pair(Token("()", SCOPE), false));
-            expected.push(pair(Token("{}", SCOPE), true));
-        } else if (token.type == CLASS) {
-            expected.push(pair(Token("()", SCOPE), false));
-            expected.push(pair(Token(".", DOT), false));
+        // } else if (token.type == CLASS) {
+        //     expected.push(pair(Token("()", SCOPE), false));
+        //     expected.push(pair(Token("{}", SCOPE), true));
+        // } else if (token.type == OBJECT) {
+        //     expected.push(pair(Token("()", SCOPE), false));
+        //     expected.push(pair(Token(".", DOT), false));
+        } else if(token.type == KEYWORD){
+            if(token.value == "if"){
+                expected.push(pair(Token("()", SCOPE), true));
+                expected.push(pair(Token("{}", SCOPE), true));
+            } else if(token.value == "else"){
+                expected.push(pair(Token("if", KEYWORD), false));
+                expected.push(pair(Token("{}", SCOPE), true));
+            }
         } else if (token.type == IDENTIFIER){
             addExpected(*findInNamespace(token.value), expected);
         }
     }
 
-    void processExpected(Token& token, Token& last, std::queue<pair> &expected){
+    void processExpected(Token& token, Token& last, std::queue<pair> &expected, bool& expectingElse){
         //std::cout <<"Token: ";displayToken(token);
         //std::cout <<"Last: ";displayToken(last);
         if(token.type == NUL || last.type == NUL){
@@ -240,26 +248,70 @@ class Scope{
                 exprStack.push(new Node(temp));//todo oneliner of inserting
                 std::cout<<"==========================================================done\n";
             }
-        } else if(last.type == CLASS){
+        // } else if(last.type == CLASS){
             
-        } else if(last.type == OBJECT){
-            
+        // } else if(last.type == OBJECT){
+
+        } else if(last.type == KEYWORD){
+            if(last.value == "if"){
+                if(token.type == SCOPE && token.value == "()" && last.weight == 0){
+                    Token scope = scopes[token.weight] -> interpret();
+                    if(stoi(scope.value) > 0){
+                        last.weight = 1;
+                    } else{
+                        last.weight = -1;
+                    }
+                } else if(token.type == SCOPE && token.value == "{}"){
+                    if(last.weight){
+                        exprStack.pop();
+                        exprStack.push(new Node(scopes[token.weight] -> interpret()));
+                    }else{
+                        expectingElse = true;
+                    }
+                }
+            } else if(last.value == "else"){
+                exprStack.pop();
+                last = (*exprStack.top()).token;
+                if(last.type == KEYWORD && last.value == "if" && last.weight == -1){
+                    exprStack.pop();
+                    if(token.type == KEYWORD && token.value == "if"){
+                        exprStack.push(new Node(token));
+                        expected.pop();
+                    } else if(token.type == SCOPE && token.value == "{}"){
+                        exprStack.push(new Node(scopes[token.weight] -> interpret()));
+                    }
+                } else{
+                    if(token.type == KEYWORD && token.value == "if"){
+                        token.weight = -1;
+                        expected.pop();
+                    }
+                }
+            } else if(last.value == "for"){
+
+            } else if(last.value == "while"){
+
+            }
         } else if(last.type == IDENTIFIER){
             //std::cout<<"getting identifier value\n";
             //displayToken(*findInNamespace(last.value));
-            processExpected(token, *findInNamespace(last.value), expected);
+            processExpected(token, *findInNamespace(last.value), expected, expectingElse);
         }
     }
 
     Node* parse(std::vector<Token> statement){
         std::queue<pair> expected = {};
         bool skip = false;
+        bool expectingElse = false;
         for (Token& token : statement) {
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
+            if(expectingElse && token.value != "else" && token.type != KEYWORD){
+                exprStack.pop();
+            }
+            expectingElse = false;
             while(!expected.empty()){
                 if(token.value == expected.front().token.value && token.type == expected.front().token.type){
                     Token last = (*exprStack.top()).token;
-                    processExpected(token, (*exprStack.top()).token, expected);
+                    processExpected(token, (*exprStack.top()).token, expected, expectingElse);
                     expected.pop();
                     skip = true;
                     break;
@@ -280,12 +332,21 @@ class Scope{
                     Token scope = scopes[token.weight] -> interpret();
                     addExpected(scope, expected);
                     exprStack.push(new Node(scope));
+                } else if(token.type == KEYWORD){
+                    if(token.value == "if"){
+                        addExpected(token, expected);
+                        exprStack.push(new Node(token));
+                    } else if(token.value == "else"){
+                        addExpected(token, expected);
+                        exprStack.push(new Node(token));
+                    }
+
                 } else if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
                     addExpected(token, expected);
                     exprStack.push(new Node(token));
                 } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
                     exprStack.push(new Node(token));
-                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN || token.type == AMPERSAND) {
+                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN || token.type == AMPERSAND || token.type == LOGICAL_OPERATOR) {
                     while (!operatorStack.empty() && 
                         operatorStack.top().type != BRACKET_OPEN &&
                         operatorStack.top().weight >= token.weight) {

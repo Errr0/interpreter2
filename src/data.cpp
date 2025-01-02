@@ -285,31 +285,15 @@ std::vector<std::string> operators = {
 
 std::set<std::string> keywords = {
     "def",
-    "int",
-    "float",
-    "char",
-    "bool",
-    "void",
-
     "include",
     "return",
     "if",
     "else",
-    "switch",
-    "case",
     "for",
     "while",
-    "do",
     "break",
     "continue",
-    "struct",
     "class",
-    "public",
-    "private",
-    "protected",
-    "const",
-    "new",
-    "delete",
     };
 
 class Scope;
