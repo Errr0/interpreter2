@@ -18,7 +18,7 @@ void eraseBetween(std::string& str, const std::string& start, const std::string&
     if (startPos != std::string::npos && endPos != std::string::npos) {
         str.erase(startPos, (endPos + end.length()) - startPos);
     }
-}
+} 
 
 std::string replaceBetween(std::string& str, const std::string& start, const std::string& end, const std::string& replacement) {
     std::string replacedPart = ""; // To store the replaced substring

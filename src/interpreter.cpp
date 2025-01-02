@@ -1,8 +1,10 @@
 #include "scopes.cpp"
 
 void interpreter(std::string& code){
-    eraseBetween(code, "/*", "*/");
+    code+="\n";
+    eraseBetween(code, "/*", "*/"); 
     eraseBetween(code, "//", "\n");
+    //std::cout<<code<<"|\n";
     std::string stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
     while(stringLiteral!=""){
         //std::cout<<stringLiteral<<"\n";

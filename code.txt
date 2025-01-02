@@ -1,7 +1,8 @@
-def a(x){
+def a(x=1){
     x++;
 }
 "Hello world!";
 z="World hello!";
 e = 4;
-e = a(e);
+a(2);
+//e = a(e);
