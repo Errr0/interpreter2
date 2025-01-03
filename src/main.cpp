@@ -21,6 +21,7 @@ int main(int argc, char* argv[]){
     std::string code;
     if(!readfile(argv[1], code)) return 2;
     interpreter(code);
+    std::cout<<"DONE";
     return 0;
 }
 

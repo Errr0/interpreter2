@@ -1,5 +1,27 @@
 #include "checks.cpp"
 
+void processInput(std::string& code){
+    code+="\n";
+    while(eraseBetween(code, "/*", "*/")); 
+    while(eraseBetween(code, "//", "\n"));
+    //std::cout<<code<<"~~\n";
+    std::string stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
+    while(stringLiteral!=""){
+        //std::cout<<stringLiteral<<"\n";
+        StringsLiterals.push(stringLiteral);
+
+        stringLiteral = replaceBetween(code, "\"", "\"", " ~STRING ");
+    }
+    stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
+    while(stringLiteral!=""){
+        //std::cout<<stringLiteral<<"\n";
+        Chars.push(stringLiteral);
+
+        stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
+    }
+    //std::cout<<"\n"<<code<<"\n";
+}
+
 int numberOfOcurrences(std::string str, std::string substr){
     int count = 0;
     size_t start = 0, end = str.find(substr);
