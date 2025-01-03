@@ -7,4 +7,5 @@ z="World hello!";
 x++;
 e = 4;
 cha = 'c';
+if(-1){o=9}else{o=-9}
 //add(e);
