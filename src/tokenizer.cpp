@@ -32,51 +32,14 @@ void addAssign(Token token, std::vector<Token> &tokens){
     }
 }
 
-void addKeyword(std::string str, std::vector<Token> &tokens){
-    // if(str == "def"){
-    //     tokens.push_back(Token(str,FUNCTION_DECLARATION));
-    // } else if(str == "class"){
-    //     tokens.push_back(Token(str,CLASS));
-    //} else if(isDatatype(str)){
-        //tokens.push_back(Token(str,DATATYPE));
-    //} else{
-        tokens.push_back(Token(str,KEYWORD));
-    //}
-}
-
-void addIdentifier(std::string str, std::vector<Token> &tokens){
-    if(isKeyword(str)){
-        tokens.push_back(Token(str,KEYWORD));
-        //addKeyword(str, tokens);    
-    } else {
-        if(!tokens.empty()){
-            if(tokens.back().type == KEYWORD){
-                if(tokens.back().value == "def"){
-                    tokens.pop_back();
-                    tokens.push_back(Token(str,FUNCTION_DECLARATION, -1));
-                    return;
-                } else if(tokens.back().value == "class"){
-                    tokens.pop_back();
-                    tokens.push_back(Token(str,CLASS));
-                    return;
-                }
-            }
-        }
-        tokens.push_back(Token(str,IDENTIFIER));
-    }
-}
-
 void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
     for (std::string str : arr) {
         if(str[0]=='~'){
             if(str=="~STRING"){
                 std::vector<Token> string;
-                //std::cout<<StringsLiterals.front()<<"\n";
                 for(char c: StringsLiterals.front()){
-                    //if(c!='"')
                     string.push_back(Token(std::string(1, c), CHAR));
                 }
-                //std::cout<<"\n";
                 Strings.push_back(string);
                 tokens.push_back(Token(StringsLiterals.front(), STRING, Strings.size()-1));
                 StringsLiterals.pop();
@@ -118,16 +81,9 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
         } else if(isNumber(str)){
             addNumberToken(str, tokens);
         } else if(isIdentifier(str)){
-            addIdentifier(str, tokens);
+            tokens.push_back(Token(str,isKeyword(str)?KEYWORD:IDENTIFIER));
         }
     }
-}
-
-void print(std::vector<Token> &tokens){
-    for(Token token : tokens){
-        std::cout << token.value << displayType(token.type);//<< "|" << token.weight << "|";
-    }
-    std::cout<<"\n";
 }
 
 void tokenizer(std::string &input, std::vector<std::vector<Token>> &output){
@@ -138,10 +94,7 @@ void tokenizer(std::string &input, std::vector<std::vector<Token>> &output){
         std::vector<std::string> strings;
         splitString(statement, operators, strings);
         tokenize(strings, tokens);
-        print(tokens);
         if(!tokens.empty())
             output.push_back(tokens);
     }
 }
-
-

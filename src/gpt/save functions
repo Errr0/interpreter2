@@ -1,0 +1,26 @@
+
+
+
+// int numberOfOcurrences(std::string str, std::string substr){
+//     int count = 0;
+//     size_t start = 0, end = str.find(substr);
+//     while (end != std::string::npos) {
+//         count++;
+//         start = end + 1;
+//         end = str.find(substr, start);
+//     }
+//     //std::cout<<"|nr of ocur "<<substr<<" in "<<str<<" = "<<count<<"|";
+//     return count;
+// }
+
+// std::string merge(std::vector<std::string> &arr){
+//     std::string str = "";
+//     for (std::string& s : arr) {
+//         str+=" "+s;
+//     }
+//     return str;
+// }
+
+// void replace(std::string &str, std::string from, std::string to) {
+//     str = std::regex_replace(str, std::regex(from), to);
+// }

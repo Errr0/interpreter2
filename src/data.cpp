@@ -47,9 +47,7 @@ enum TokenType {
     FUNCTION_DECLARATION,
     CLASS,
     OBJECT,
-    NUL,
-    DATATYPE,
-    DECLARATION
+    NUL
 };
 
 class Token{
@@ -103,38 +101,7 @@ std::string displayTokenType(TokenType token) {
         case CLASS: return "CLASS";
         case OBJECT: return "OBJECT";
         case NUL: return "NULL";
-        case DATATYPE: return "DATATYPE";
-        case DECLARATION: return "DECLARATION";
         default: return "UNKNOWN";
-    }
-}
-
-std::string displayType(TokenType token) {
-    switch (token) {
-        case END: return "";
-        case ENDLINE: return "endl";
-        case ASSIGN: return "";
-        case ARITMETIC_OPERATOR: return "";
-        case LOGICAL_OPERATOR: return "";
-        case INT: return "(i)";
-        case FLOAT: return "(f)";
-        case IDENTIFIER: return "(id)";
-        case KEYWORD: return "(kw)";
-        case BRACKET_OPEN: return "";
-        case BRACKET_CLOSE: return "";
-        case QUOTATION: return "";
-        case QUESTIONMARK: return "";
-        case COMMA: return "";
-        case COLON: return "";
-        case DOT: return "";
-        case BACKSLASH: return "";
-        case DOUBLESLASH: return "";
-        case HASHTAG: return "";
-        case WHITESPACE: return "";
-        case AMPERSAND: return "";
-        case SCOPE: return "s";
-        case STRING: return "str";
-        default: return "";
     }
 }
 
@@ -233,13 +200,17 @@ std::map<std::string, std::string> lockSymbol = {
     {" ", "~SPACE"},
     {"\t", "~TAB"},
     {"&", "~AMPERSAND"}
-    
 };
 
 std::vector<std::string> operators = {
     "{",
     "}",
+    "(",
+    ")",
+    "[",
+    "]",
     ";",
+    ",",
     " ",
     "==",
     "!=",
@@ -256,9 +227,7 @@ std::vector<std::string> operators = {
     "%=",
     "//",
     "\n",
-    //";",
     "\t",
-    //" ",
     "=",
     "+",
     "*",
@@ -268,14 +237,9 @@ std::vector<std::string> operators = {
     "<",
     ">",
     "%",
-    "(",
-    ")",
-    "[",
-    "]",
     "'",
     "\"",
     "?",
-    ",",
     ":",
     ".",
     "\\",
@@ -284,8 +248,7 @@ std::vector<std::string> operators = {
     };
 
 std::set<std::string> keywords = {
-    "def",
-    "include",
+    "import",
     "return",
     "if",
     "else",
@@ -293,7 +256,6 @@ std::set<std::string> keywords = {
     "while",
     "break",
     "continue",
-    "class",
     };
 
 class Scope;
@@ -316,10 +278,28 @@ std::vector<Scope> functions;
 std::vector<Scope> classes;
 std::vector<Scope> objects;//to do garbage collection
 
-// std::set<std::string> dataTypes = {
-//     "int",
-//     "float",
-//     "char",
-//     "bool",
-//     "void"
-// };
+void displayToken(Token token, int depth = 0){
+    std::cout << std::string(depth * 5, ' ') << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
+     if(token.type == ARRAY){
+        for(Token token : Arrays[token.weight]){
+            displayToken(token, depth+1);
+        }
+    } else if(token.type == STRING){
+        for(Token token : Strings[token.weight]){
+            displayToken(token, depth+1);
+        }
+    }
+}
+
+std::map<std::string, Token> GlobalNamespace = {
+    //{"", Token("0", INT)}
+    //{"a", Token("2", INT)}
+};
+
+std::map<std::string, Token> BuildInNamespace = {
+    {"PI", Token("3.14", FLOAT)}
+};
+
+std::vector<std::map<std::string, Token>*> BuildInNamespaces = {
+    &BuildInNamespace
+};

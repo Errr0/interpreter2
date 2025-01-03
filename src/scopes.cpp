@@ -1,37 +1,11 @@
 #include "parser.cpp"
 
-void displayToken(Token token, int depth = 0){
-    std::cout << std::string(depth * 5, ' ') << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
-     if(token.type == ARRAY){
-        for(Token token : Arrays[token.weight]){
-            displayToken(token, depth+1);
-        }
-    } else if(token.type == STRING){
-        for(Token token : Strings[token.weight]){
-            displayToken(token, depth+1);
-        }
-    }
-}
-
-std::map<std::string, Token> GlobalNamespace = {
-    //{"", Token("0", INT)}
-    //{"a", Token("2", INT)}
-};
-
-std::map<std::string, Token> BuildInNamespace = {
-    {"PI", Token("3.14", FLOAT)}
-};
-
-std::vector<std::map<std::string, Token>*> BuildInNamespaces = {
-    &BuildInNamespace
-};
-
 class Scope{
     public:
     Node* root;
     std::string type;
     std::vector<Token> tokens;
-    std::vector<Token> statements;//to delete
+    //std::vector<Token> statements;//to delete
     std::vector<std::vector<Token>> statementsTokens;
     std::vector<Scope*> scopes;
 
@@ -45,7 +19,11 @@ class Scope{
         this->type = type;
         this->namespaces = namespaces;
         this->namespaces.insert(this->namespaces.begin(), &ScopeNamespace);
-    }//to do working destructor
+    }
+
+    ~Scope(){
+
+    }
 
     void appendToken(Token token){
         tokens.push_back(token);
@@ -54,7 +32,7 @@ class Scope{
     void makeStatement(std::string type){
         statementsTokens.push_back(tokens);
         tokens.clear();
-        statements.push_back(Token(type, STATEMENT, statementsTokens.size()-1));
+        //statements.push_back(Token(type, STATEMENT, statementsTokens.size()-1));
         
     }
 
@@ -66,7 +44,7 @@ class Scope{
 
     void copy(Scope* second){
         this->tokens = second->tokens;
-        this->statements = second->statements;
+        //this->statements = second->statements;
         this->statementsTokens = second->statementsTokens;
         this->scopes = second->scopes;
     }
@@ -86,16 +64,16 @@ class Scope{
             std::cout<<"EMPTY";
         } else {
             for(Token token : tokens){
-                std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
+                std::cout<<token.value<<" ";//displayTokenType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
             }
         }
         std::cout <<"\n"<< std::string((depth) * 5, ' ')<<"Namespaces:\n";
         printNamespaces(depth);
-        if(!statements.empty()){
+        if(!statementsTokens.empty()){
             for(std::vector<Token> statement : statementsTokens){
                 std::cout << std::string(depth * 5, ' ') <<"Tokens: ";
                 for(Token token : statement){
-                    std::cout<<token.value<<displayType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
+                    std::cout<<token.value<<" ";//displayTokenType(token.type)<<((token.type == SCOPE) ? std::to_string(token.weight) : "")<<" ";
                 }
                 std::cout << "\n";
             }
@@ -110,15 +88,10 @@ class Scope{
         for(Scope* scope : scopes){
             scope->namespaces = this->namespaces;
             scope->updateChildsNamespaces();
-            //scope->print();
         }
     }
 
-    void processOperator() {
-            if(expectingElse){
-                exprStack.pop();
-            }
-            expectingElse = false; 
+    void processOperator() { 
             if (operatorStack.empty() || exprStack.size() < 2) {
                 std::cerr << "PARSER ERROR: Invalid operator/operand stack state!\n";
                 return;
@@ -301,11 +274,11 @@ class Scope{
             processExpected(token, *findInNamespace(last.value), expected, expectingElse);
         }
     }
-    bool expectingElse = false;
+    //bool expectingElse = false;
     Node* parse(std::vector<Token> statement){
         std::queue<pair> expected = {};
         bool skip = false;
-        //bool expectingElse = false;
+        bool expectingElse = false;
         for (Token& token : statement) {
             //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
             if(expectingElse && token.value != "else" && token.type != KEYWORD){
@@ -363,10 +336,6 @@ class Scope{
                 }
             }
         }
-        if(expectingElse){
-            exprStack.pop();
-        }
-        expectingElse = false;  
         // Process remaining operators
         while (!operatorStack.empty()) {
             processOperator();
@@ -394,26 +363,14 @@ class Scope{
     }
 
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
-        //printTree(node);
-        //std::cout<<"("<<depth<<","<<node->token.value<<","<<displayTokenType(node->token.type)<<")\n";
         if(node->token.type == IDENTIFIER){
-            //displayToken(node->token);
-
             if(findInNamespace(node->token.value) == &nullvalue){
-                //std::cout<<"========================\n";
-                //printNamespaces();
-                //std::cout<<"new identifier ";displayToken(node->token);
                 ScopeNamespace.insert({node->token.value, Token("null", NUL)});
-                //printNamespaces();
-                //std::cout<<"========================\n";
             }
             return node->token;
-        // } else if(node->token.type == ARRAY){
-        //     return node->token;
         } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == STRING || node->token.type == CHAR || node->token.type == ARRAY){
             return node->token;
         } else{
-            //std::cout<<"else";
             Token right, left;
             if (node->right) {
                 right = interpretTree(node->right);
@@ -488,19 +445,13 @@ class Scope{
 
     Token interpret(int depth = 0){
         std::vector<Token> output;
-        if(!statements.empty()){
-            for(Token& statement : statements){
-                // Node* node = parse(statementsTokens[statement.weight]);
-                // printTree(node);
-                // output.push_back(interpretTree(node));
-                output.push_back(interpretTree(parse(statementsTokens[statement.weight])));
+        if(!statementsTokens.empty()){
+            for(std::vector<Token>& statement : statementsTokens){
+                output.push_back(interpretTree(parse(statement)));
             }
         }
 
         if(!tokens.empty()){
-            // Node* node = parse(tokens);
-            // printTree(node);
-            // output.push_back(interpretTree(node));
             output.push_back(interpretTree(parse(tokens)));
         }
 
@@ -516,34 +467,3 @@ class Scope{
     }
 };
 
-Scope makeScopeTree(std::vector<Token>& tokens) {
-    Scope root("{}", BuildInNamespaces);
-    root.ScopeNamespace = GlobalNamespace;
-    Scope* currentScope = &root;
-    std::stack<Scope*> scopeStack;
-    for (const Token& token : tokens) {
-        if (token.type != BRACKET_OPEN && token.type != BRACKET_CLOSE && token.type != END && token.type != COMMA) {
-            currentScope->appendToken(token);
-        } else if (token.type == END || token.type == COMMA){
-            currentScope->makeStatement((token.type == END)?";":",");
-        } else if (token.type == BRACKET_OPEN) {
-            std::string type;
-            if (token.value == "{") type = "{}";
-            else if (token.value == "(") type = "()";
-            else if (token.value == "[") type = "[]";
-
-            Scope* newScope = currentScope->appendScope(type);
-            scopeStack.push(currentScope);
-            currentScope = newScope;
-        } else if (token.type == BRACKET_CLOSE) {
-            char expectedClose = currentScope->type[1];
-            if (token.value[0] != expectedClose) {
-                std::cerr << "ERROR: Mismatched brackets " << token.value << " and " << currentScope->type << "\n";
-                return root;
-            }
-            currentScope = scopeStack.top();
-            scopeStack.pop();
-        }
-    }
-    return root;
-}

@@ -1,11 +1,8 @@
-/*def add(a=0){
+/*add(a=0){
     add(a+1);
 }*/
-"Hello world!";
 x=1;
-z="World hello!";
 x++;
 e = 4;
 cha = 'c';
-if(-1){o=9}else{o=-9}
 //add(e);
