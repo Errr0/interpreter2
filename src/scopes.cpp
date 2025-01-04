@@ -1,6 +1,6 @@
 #include "parser.cpp"
 
-class Scope{
+class Scope{//TODO parsing rework.... again
     public:
     Node* root;
     std::string type;
@@ -276,11 +276,16 @@ class Scope{
     }
     //bool expectingElse = false;
     Node* parse(std::vector<Token> statement){
-        std::queue<pair> expected = {};
+        statement.push_back(Token());
+        std::queue<pair> expected = {};//to delete
         bool skip = false;
         bool expectingElse = false;
         for (Token& token : statement) {
-            //std::cout <<"parsing "<<token.value<<" "<<displayTokenType(token.type)<<" "<<token.weight<<"\n";
+            if(token.type==END){
+                break;
+            }
+            std::cout <<"parsing ";displayToken(token);
+            std::cout <<"next ";displayToken(*(&token+1));
             if(expectingElse && token.value != "else" && token.type != KEYWORD){
                 exprStack.pop();
             }
