@@ -62,7 +62,7 @@ class Token{
     }
 };
 
-Token nullvalue = Token("null", NUL);
+Token nullToken = Token("null", NUL);
 
 std::string displayTokenType(TokenType token) {
     switch (token) {
