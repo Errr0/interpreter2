@@ -1,8 +1,8 @@
-/*add(a=0){
-    add(a+1);
-}*/
+add(a,b){
+    return a+b
+}
 x=1;
 x++;
 e = 4;
-cha = 'c';
-//add(e);
+char = 'c';
+add(e,x);

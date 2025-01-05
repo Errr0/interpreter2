@@ -38,6 +38,9 @@ void interpreter(std::string& code){
     std::vector<Token> tokens;
     splitString(code, operators, strings);
     tokenize(strings, tokens);
+    for(Token token:tokens){
+        displayToken(token);
+    }
     Scope root = makeScopeTree(tokens);
     Token output = root.interpret();
     //displayToken(output);

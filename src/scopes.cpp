@@ -42,12 +42,18 @@ class Scope{//TODO parsing rework.... again
         return scopes.back();
     }
 
-    // void copy(Scope* second){
-    //     this->tokens = second->tokens;
-    //     //this->statements = second->statements;
-    //     this->statementsTokens = second->statementsTokens;
-    //     this->scopes = second->scopes;
-    // }
+    void copy(Scope* second){
+        this->tokens = second->tokens;
+        this->statementsTokens = second->statementsTokens;
+        this->scopes = second->scopes;
+    }
+
+    void updateChildsNamespaces(){
+        for(Scope* scope : scopes){
+            scope->namespaces = this->namespaces;
+            scope->updateChildsNamespaces();
+        }
+    }
 
     void printNamespaces(int depth = 0){
         for(std::map<std::string, Token>* ns : namespaces){
@@ -101,16 +107,37 @@ class Scope{//TODO parsing rework.... again
     
     Node* parse(std::vector<Token> statement){
         statement.push_back(Token());
+        int skip = 0;
         for (Token& token : statement) {
             if(token.type==END){
                 break;
+            }
+            if(skip>0){
+                skip--;
+                continue;
             }
             std::cout <<"parsing ";displayToken(token);
             std::cout <<"next ";displayToken(*(&token+1));
                 if (token.type == SCOPE) {
                     Token scope = scopes[token.weight] -> interpret();
                     exprStack.push(new Node(scope));
-                } else if (token.type == ARRAY || token.type == FUNCTION_DECLARATION || token.type == FUNCTION || token.type == CLASS || token.type == OBJECT || token.type == IDENTIFIER) {
+                } else if (token.type == IDENTIFIER) {
+                    if((&token+1)->type == SCOPE && (&token+1)->value == "()"){
+                        if(functions.count(token.value)){
+                            if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
+                                scopes[(&token+2)->weight]->ScopeNamespace.insert({"~~arguments~~", scopes[(&token+1)->weight]->interpret()});
+                                scopes[(&token+2)->weight];
+                                functions.insert({token.value, *scopes[(&token+2)->weight]});
+                            } else{
+                                std::cerr<<"";
+                            }
+                        } else{
+                            exprStack.push(new Node(token));
+                        }
+                        //token.type == FUNCTION;
+                    }
+                    
+                } else if (token.type == ARRAY){
                     exprStack.push(new Node(token));
                 } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
                     exprStack.push(new Node(token));

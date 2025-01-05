@@ -260,6 +260,8 @@ std::set<std::string> keywords = {
 
 class Scope;
 
+Scope emptyScope;
+
 class pair{
     public:
     Token token;
@@ -274,7 +276,7 @@ std::queue<std::string> StringsLiterals;
 std::queue<std::string> Chars;
 std::vector<std::vector<Token>> Arrays;
 std::vector<std::vector<Token>> Strings;
-std::vector<Scope> functions;
+std::map<std::string,Scope> functions;
 std::vector<Scope> classes;
 std::vector<Scope> objects;//to do garbage collection
 
