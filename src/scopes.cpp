@@ -5,6 +5,7 @@ class Scope{//TODO parsing rework.... again
     Node* root;
     std::string type;
     std::vector<Token> tokens;
+    Scope* parent;
     //std::vector<Token> statements;//to delete
     std::vector<std::vector<Token>> statementsTokens;
     std::vector<Scope*> scopes;
@@ -15,10 +16,11 @@ class Scope{//TODO parsing rework.... again
     std::map<std::string, Token>  ScopeNamespace;
     std::vector<std::map<std::string, Token>*> namespaces;
     
-    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}){
+    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}, Scope* parent = nullptr){
         this->type = type;
         this->namespaces = namespaces;
         this->namespaces.insert(this->namespaces.begin(), &ScopeNamespace);
+        this->parent = parent;
     }
 
     ~Scope(){
@@ -37,7 +39,7 @@ class Scope{//TODO parsing rework.... again
     }
 
     Scope* appendScope(const std::string& scopeType) {
-        scopes.push_back(new Scope(scopeType, namespaces));
+        scopes.push_back(new Scope(scopeType, namespaces, this));
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
         return scopes.back();
     }
@@ -104,6 +106,21 @@ class Scope{//TODO parsing rework.... again
 
         exprStack.push(new Node(op, left, right));
     }
+
+    void updateArguments(Token arguments, std::vector<std::map<std::string, Token>*>& callNamespace){
+        if(findInNamespace("~~arguments_names~~")->type == ARRAY){
+            if(arguments.type == ARRAY){
+                for(size_t i = 0;i<std::min(Arrays[findInNamespace("~~arguments_names~~")->weight].size(), Arrays[arguments.weight].size());i++){
+                    ScopeNamespace[Arrays[findInNamespace("~~arguments_names~~")->weight][i].value] = (Arrays[arguments.weight][i].type == VARIABLE)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i];
+                }
+            } else{
+                ScopeNamespace[Arrays[findInNamespace("~~arguments_names~~")->weight][0].value] = (arguments.type == VARIABLE)?*findInNamespace(arguments.value, &callNamespace):arguments;
+            }
+        } else if(findInNamespace("~~arguments_names~~")->type == IDENTIFIER){
+            ScopeNamespace[findInNamespace("~~arguments_names~~")->value] = (arguments.type == VARIABLE)?*findInNamespace(arguments.value, &callNamespace):arguments;
+        }        
+        updateChildsNamespaces();
+    }
     
     Node* parse(std::vector<Token> statement){
         statement.push_back(Token());
@@ -122,21 +139,30 @@ class Scope{//TODO parsing rework.... again
                     Token scope = scopes[token.weight] -> interpret();
                     exprStack.push(new Node(scope));
                 } else if (token.type == IDENTIFIER) {
-                    if((&token+1)->type == SCOPE && (&token+1)->value == "()"){
-                        if(functions.count(token.value)){
-                            if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
-                                scopes[(&token+2)->weight]->ScopeNamespace.insert({"~~arguments~~", scopes[(&token+1)->weight]->interpret()});
-                                scopes[(&token+2)->weight];
-                                functions.insert({token.value, *scopes[(&token+2)->weight]});
-                            } else{
-                                std::cerr<<"";
-                            }
+                    if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
+                        if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
+                            //scopes[(&token+1)->weight]->interpret();
+
+                            scopes[(&token+1)->weight]->ScopeNamespace.insert({"~~arguments_names~~", scopes[(&token+1)->weight]->interpret()});
+                            //scopes[(&token+2)->weight];
+                            scopes[(&token+1)->weight]->copy(scopes[(&token+2)->weight]);
+                            functions.insert({token.value, *scopes[(&token+1)->weight]});
+                            skip = 2;
                         } else{
-                            exprStack.push(new Node(token));
+                            if(functions.count(token.value)){
+                                functions[token.value].updateArguments(scopes[(&token+1)->weight]->interpret(), scopes[(&token+1)->weight]->namespaces);//.findInNamespace("~~arguments_names~~");
+                                exprStack.push(new Node(functions[token.value].interpret()));
+                                //functions[token.value].interpret();
+                            } else{
+                                std::cerr << "FUNCTION ERROR: function doesent exist"<<displayTokenType(token.type)<<"\n";
+                                
+                                //exprStack.push(new Node(token));
+                            }
+                            skip = 1;
                         }
-                        //token.type == FUNCTION;
+                    } else{
+                        exprStack.push(new Node(token));
                     }
-                    
                 } else if (token.type == ARRAY){
                     exprStack.push(new Node(token));
                 } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
@@ -171,12 +197,21 @@ class Scope{//TODO parsing rework.... again
         return return_value;
     }
 
-    Token* findInNamespace(std::string key){
-        for(std::map<std::string, Token>* ns : namespaces){
-            if((*ns).count(key)){
-                return &(*ns)[key];
+    Token* findInNamespace(std::string key, std::vector<std::map<std::string, Token>*>* NS = nullptr){
+        if(NS){
+            for(std::map<std::string, Token>* ns : *NS){
+                if((*ns).count(key)){
+                    return &(*ns)[key];
+                }
+            }
+        } else{
+            for(std::map<std::string, Token>* ns : namespaces){
+                if((*ns).count(key)){
+                    return &(*ns)[key];
+                }
             }
         }
+        
         return &nullToken;
     }
 
@@ -205,7 +240,7 @@ class Scope{//TODO parsing rework.... again
             if(node->token.type == ASSIGN){
                 if(left.type == IDENTIFIER){
                     *findInNamespace(left.value) = (right.type == IDENTIFIER) ? *findInNamespace(right.value) : right;
-                    return *findInNamespace(left.value);
+                    return left;
                 } else{
                     std::cout<<"assigning error\n";
                 }

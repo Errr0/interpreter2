@@ -1,5 +1,6 @@
+//(a,b);
 add(a,b){
-    return a+b
+    a+b;//ERROR HERE  terminate called after throwing an instance of 'std::logic_error'what():  basic_string: construction from null is not valid
 }
 x=1;
 x++;

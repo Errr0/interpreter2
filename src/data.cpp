@@ -260,7 +260,7 @@ std::set<std::string> keywords = {
 
 class Scope;
 
-Scope emptyScope;
+//Scope emptyScope = {};
 
 class pair{
     public:
