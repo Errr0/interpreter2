@@ -108,18 +108,28 @@ class Scope{//TODO parsing rework.... again
     }
 
     void updateArguments(Token arguments, std::vector<std::map<std::string, Token>*>& callNamespace){
+        std::cout<<"\n\n////////////////////////////////////////////////////////////////////////////\n";  
         if(findInNamespace("~~arguments_names~~")->type == ARRAY){
             if(arguments.type == ARRAY){
                 for(size_t i = 0;i<std::min(Arrays[findInNamespace("~~arguments_names~~")->weight].size(), Arrays[arguments.weight].size());i++){
-                    ScopeNamespace[Arrays[findInNamespace("~~arguments_names~~")->weight][i].value] = (Arrays[arguments.weight][i].type == VARIABLE)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i];
+                    std::cout<<Arrays[findInNamespace("~~arguments_names~~")->weight][i].value<<"\n";
+                    displayToken(((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]));
+                    std::cout<<"\n";
+                    *findInNamespace(Arrays[findInNamespace("~~arguments_names~~")->weight][i].value) = ((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]);
                 }
             } else{
-                ScopeNamespace[Arrays[findInNamespace("~~arguments_names~~")->weight][0].value] = (arguments.type == VARIABLE)?*findInNamespace(arguments.value, &callNamespace):arguments;
+                *findInNamespace(Arrays[findInNamespace("~~arguments_names~~")->weight][0].value) = (arguments.type == IDENTIFIER)?*findInNamespace(arguments.value, &callNamespace):arguments;
             }
         } else if(findInNamespace("~~arguments_names~~")->type == IDENTIFIER){
-            ScopeNamespace[findInNamespace("~~arguments_names~~")->value] = (arguments.type == VARIABLE)?*findInNamespace(arguments.value, &callNamespace):arguments;
-        }        
+            *findInNamespace(findInNamespace("~~arguments_names~~")->value) = (arguments.type == IDENTIFIER)?*findInNamespace(arguments.value, &callNamespace):arguments;
+        }      
+        
+        displayToken(arguments);
+        print();
+        std::cout<<"\n\n\n";  
         updateChildsNamespaces();
+        print();
+        std::cout<<"\n////////////////////////////////////////////////////////////////////////////\n\n"; 
     }
     
     Node* parse(std::vector<Token> statement){
@@ -141,22 +151,16 @@ class Scope{//TODO parsing rework.... again
                 } else if (token.type == IDENTIFIER) {
                     if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
                         if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
-                            //scopes[(&token+1)->weight]->interpret();
-
                             scopes[(&token+1)->weight]->ScopeNamespace.insert({"~~arguments_names~~", scopes[(&token+1)->weight]->interpret()});
-                            //scopes[(&token+2)->weight];
                             scopes[(&token+1)->weight]->copy(scopes[(&token+2)->weight]);
                             functions.insert({token.value, *scopes[(&token+1)->weight]});
                             skip = 2;
                         } else{
                             if(functions.count(token.value)){
-                                functions[token.value].updateArguments(scopes[(&token+1)->weight]->interpret(), scopes[(&token+1)->weight]->namespaces);//.findInNamespace("~~arguments_names~~");
+                                functions[token.value].updateArguments(scopes[(&token+1)->weight]->interpret(), scopes[(&token+1)->weight]->namespaces);
                                 exprStack.push(new Node(functions[token.value].interpret()));
-                                //functions[token.value].interpret();
                             } else{
                                 std::cerr << "FUNCTION ERROR: function doesent exist"<<displayTokenType(token.type)<<"\n";
-                                
-                                //exprStack.push(new Node(token));
                             }
                             skip = 1;
                         }
@@ -179,7 +183,7 @@ class Scope{//TODO parsing rework.... again
                     return nullptr;
                 }
             }
-        
+        //std::cout<<"D\n";
         // Process remaining operators
         while (!operatorStack.empty()) {
             processOperator();
@@ -194,9 +198,10 @@ class Scope{//TODO parsing rework.... again
         }
         Node* return_value = exprStack.top();
         exprStack.pop();
+        //std::cout<<"U\n";
         return return_value;
     }
-
+    
     Token* findInNamespace(std::string key, std::vector<std::map<std::string, Token>*>* NS = nullptr){
         if(NS){
             for(std::map<std::string, Token>* ns : *NS){
@@ -211,11 +216,11 @@ class Scope{//TODO parsing rework.... again
                 }
             }
         }
-        
         return &nullToken;
     }
 
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
+        //std::cout<<"interpreting: ";displayToken(node->token.value);
         if(node->token.type == IDENTIFIER){
             if(findInNamespace(node->token.value) == &nullToken){
                 ScopeNamespace.insert({node->token.value, Token("null", NUL)});
@@ -227,12 +232,14 @@ class Scope{//TODO parsing rework.... again
             Token right, left;
             if (node->right) {
                 right = interpretTree(node->right);
+                //std::cout<<"right: ";displayToken(right);
             } else{
                 std::cout<<"ERROR interpreting no righr\n";
                 return Token("null", NUL);
             }
             if (node->left) {
                 left = interpretTree(node->left);
+                //std::cout<<"left: ";displayToken(left);
             } else{
                 std::cout<<"ERROR interpreting no left\n";
                 return Token("null", NUL);
@@ -249,43 +256,59 @@ class Scope{//TODO parsing rework.... again
             } else if(node->token.type == ARITMETIC_OPERATOR){
                 if(left.type == IDENTIFIER){
                     left = *findInNamespace(left.value);
-                    if(left.type == NUL){
-                        left = Token(0,INT);
-                    }
+                    //std::cout<<"left value: ";displayToken(left);
                 }
                 if(right.type == IDENTIFIER){
                     right = *findInNamespace(right.value);
-                    if(right.type == NUL){
-                        right = Token(0,INT);
-                    }
+                    //std::cout<<"right value: ";displayToken(right);
                 }
                 if(node->token.value == "+"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), INT);
                     } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                         return Token(std::to_string(std::stof(left.value) + std::stof(right.value)), FLOAT);
+                    } else if(left.type == NUL){
+                        return right;
+                    } else if(right.type == NUL){
+                        return left;
                     }
                 } else if(node->token.value == "-"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) - std::stoi(right.value)), INT);
                     } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                         return Token(std::to_string(std::stof(left.value) - std::stof(right.value)), FLOAT);
+                    } else if(left.type == NUL){
+                        return right;
+                    } else if(right.type == NUL){
+                        return left;
                     }
                 } else if(node->token.value == "*"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) * std::stoi(right.value)), INT);
                     } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                         return Token(std::to_string(std::stof(left.value) * std::stof(right.value)), FLOAT);
+                    } else if(left.type == NUL){
+                        return right;
+                    } else if(right.type == NUL){
+                        return left;
                     }
                 } else if(node->token.value == "/"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), INT);
                     } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
                         return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), FLOAT);
+                    } else if(left.type == NUL){
+                        return right;
+                    } else if(right.type == NUL){
+                        return left;
                     }
                 } else if(node->token.value == "%"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) % std::stoi(right.value) : 0), INT);
+                    } else if(left.type == NUL){
+                        return right;
+                    } else if(right.type == NUL){
+                        return left;
                     }
                 }
             }

@@ -36,15 +36,12 @@ enum TokenType {
     COLON,
     DOT,
     BACKSLASH,
-    DOUBLESLASH,
     HASHTAG,
     AMPERSAND,
     SCOPE,
     STATEMENT,
     ARRAY,
-    VARIABLE,
     FUNCTION,
-    FUNCTION_DECLARATION,
     CLASS,
     OBJECT,
     NUL
@@ -89,15 +86,12 @@ std::string displayTokenType(TokenType token) {
         case COLON: return "COLON";
         case DOT: return "DOT";
         case BACKSLASH: return "BACKSLASH";
-        case DOUBLESLASH: return "DOUBLESLASH";
         case HASHTAG: return "HASHTAG";
         case AMPERSAND: return "AMPERSAND";
         case SCOPE: return "SCOPE";
         case STATEMENT: return "STATEMENT";
         case ARRAY: return "ARRAY";
-        case VARIABLE: return "VARIABLE";
         case FUNCTION: return "FUNCTION";
-        case FUNCTION_DECLARATION: return "FUNCTION_DECLARATION";
         case CLASS: return "CLASS";
         case OBJECT: return "OBJECT";
         case NUL: return "NULL";
@@ -149,7 +143,6 @@ std::map<std::string, Token> locked = {
     {"~COLON", Token(":", COLON)},
     {"~DOT", Token(".", DOT)},
     {"~BACKSLASH", Token("\\", BACKSLASH)},
-    {"~DOUBLESLASH", Token("//", DOUBLESLASH)},
     {"~HASHTAG", Token("#", HASHTAG)},
     {"~AMPERSAND", Token("&", AMPERSAND, values[5])},
 

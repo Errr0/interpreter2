@@ -1,9 +1,9 @@
 //(a,b);
-add(a,b){
-    a+b;//ERROR HERE  terminate called after throwing an instance of 'std::logic_error'what():  basic_string: construction from null is not valid
+add(a){
+    &a++;
 }
 x=1;
-x++;
+&x++;
 e = 4;
 char = 'c';
-add(e,x);
+add(e);
