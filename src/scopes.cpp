@@ -1,12 +1,11 @@
 #include "parser.cpp"
 
-class Scope{//TODO parsing rework.... again
+class Scope{
     public:
     Node* root;
     std::string type;
     std::vector<Token> tokens;
-    Scope* parent;
-    //std::vector<Token> statements;//to delete
+    //Scope* parent;
     std::vector<std::vector<Token>> statementsTokens;
     std::vector<Scope*> scopes;
 
@@ -16,15 +15,21 @@ class Scope{//TODO parsing rework.... again
     std::map<std::string, Token>  ScopeNamespace;
     std::vector<std::map<std::string, Token>*> namespaces;
     
-    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}, Scope* parent = nullptr){
+    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}){//, Scope* parent = nullptr
         this->type = type;
         this->namespaces = namespaces;
         this->namespaces.insert(this->namespaces.begin(), &ScopeNamespace);
-        this->parent = parent;
+        // this->parent = parent;
     }
 
     ~Scope(){
-
+        for (Scope* scope : scopes) {
+            delete scope;
+        }
+        for (auto* namespaceMap : namespaces) {
+            delete namespaceMap;
+        }
+        delete root;
     }
 
     void appendToken(Token token){
@@ -39,7 +44,7 @@ class Scope{//TODO parsing rework.... again
     }
 
     Scope* appendScope(const std::string& scopeType) {
-        scopes.push_back(new Scope(scopeType, namespaces, this));
+        scopes.push_back(new Scope(scopeType, namespaces));//, this
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
         return scopes.back();
     }
@@ -108,13 +113,13 @@ class Scope{//TODO parsing rework.... again
     }
 
     void updateArguments(Token arguments, std::vector<std::map<std::string, Token>*>& callNamespace){
-        std::cout<<"\n\n////////////////////////////////////////////////////////////////////////////\n";  
+        //std::cout<<"\n\n////////////////////////////////////////////////////////////////////////////\n";  
         if(findInNamespace("~~arguments_names~~")->type == ARRAY){
             if(arguments.type == ARRAY){
                 for(size_t i = 0;i<std::min(Arrays[findInNamespace("~~arguments_names~~")->weight].size(), Arrays[arguments.weight].size());i++){
-                    std::cout<<Arrays[findInNamespace("~~arguments_names~~")->weight][i].value<<"\n";
-                    displayToken(((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]));
-                    std::cout<<"\n";
+                    //std::cout<<Arrays[findInNamespace("~~arguments_names~~")->weight][i].value<<"\n";
+                    //displayToken(((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]));
+                    //std::cout<<"\n";
                     *findInNamespace(Arrays[findInNamespace("~~arguments_names~~")->weight][i].value) = ((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]);
                 }
             } else{
@@ -124,12 +129,42 @@ class Scope{//TODO parsing rework.... again
             *findInNamespace(findInNamespace("~~arguments_names~~")->value) = (arguments.type == IDENTIFIER)?*findInNamespace(arguments.value, &callNamespace):arguments;
         }      
         
-        displayToken(arguments);
-        print();
-        std::cout<<"\n\n\n";  
+        //displayToken(arguments);
+        //print();
+        //std::cout<<"\n\n\n";  
         updateChildsNamespaces();
-        print();
-        std::cout<<"\n////////////////////////////////////////////////////////////////////////////\n\n"; 
+        //print();
+        //std::cout<<"\n////////////////////////////////////////////////////////////////////////////\n\n"; 
+    }
+
+    Token callExternalFunction(std::string name, Token& arguments = nullToken){
+        if(name == "print"){
+            if(arguments.type == ARRAY){
+                for(Token arg : Arrays[arguments.weight]){
+                    std::cout<<arg.value;
+                }
+            } else{//if(arguments.type == STRING)
+                std::cout<<arguments.value;
+            }
+            return nullToken;
+        } else if(name == "input"){
+            callExternalFunction("print", arguments);
+            std::string input;
+            std::cin>>input;
+            std::vector<Token> string;
+            for(char c: input){
+                string.push_back(Token(std::string(1, c), CHAR));
+            }
+            Arrays.push_back(string);
+            return Token(input, STRING, Arrays.size()-1);
+        } else if(name == ""){
+
+        } else if(name == ""){
+
+        } else if(name == ""){
+
+        }
+        return nullToken;
     }
     
     Node* parse(std::vector<Token> statement){
@@ -143,17 +178,22 @@ class Scope{//TODO parsing rework.... again
                 skip--;
                 continue;
             }
-            std::cout <<"parsing ";displayToken(token);
-            std::cout <<"next ";displayToken(*(&token+1));
+            //std::cout <<"parsing ";displayToken(token);
+            //std::cout <<"next ";displayToken(*(&token+1));
                 if (token.type == SCOPE) {
                     Token scope = scopes[token.weight] -> interpret();
                     exprStack.push(new Node(scope));
                 } else if (token.type == IDENTIFIER) {
                     if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
+                        if(externalFunctions.find(token.value) != externalFunctions.end()){
+                            callExternalFunction(token.value);
+                            skip=1;
+                        } else 
                         if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
-                            scopes[(&token+1)->weight]->ScopeNamespace.insert({"~~arguments_names~~", scopes[(&token+1)->weight]->interpret()});
+                            scopes[(&token+1)->weight]->ScopeNamespace["~~arguments_names~~"] = scopes[(&token+1)->weight]->interpret();
                             scopes[(&token+1)->weight]->copy(scopes[(&token+2)->weight]);
-                            functions.insert({token.value, *scopes[(&token+1)->weight]});
+                            scopes[(&token+1)->weight]->type = "function";
+                            functions[token.value] = *scopes[(&token+1)->weight];
                             skip = 2;
                         } else{
                             if(functions.count(token.value)){
@@ -164,6 +204,10 @@ class Scope{//TODO parsing rework.... again
                             }
                             skip = 1;
                         }
+                    } else if((&token+1)->type == SCOPE && (&token+1)->value == "{}"){
+                        scopes[(&token+1)->weight]->type = "class";
+                        classes.insert({token.value, *scopes[(&token+1)->weight]});
+                        skip=1;
                     } else{
                         exprStack.push(new Node(token));
                     }

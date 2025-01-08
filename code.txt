@@ -1,9 +1,10 @@
-//(a,b);
-add(a){
-    &a++;
-}
-x=1;
-&x++;
-e = 4;
-char = 'c';
-add(e);
+"Hello world!";
+z= "!World hello";
+'\n';
+//print(z);
+
+
+
+
+
+

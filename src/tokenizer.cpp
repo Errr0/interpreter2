@@ -40,8 +40,8 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 for(char c: StringsLiterals.front()){
                     string.push_back(Token(std::string(1, c), CHAR));
                 }
-                Strings.push_back(string);
-                tokens.push_back(Token(StringsLiterals.front(), STRING, Strings.size()-1));
+                Arrays.push_back(string);
+                tokens.push_back(Token(StringsLiterals.front(), STRING, Arrays.size()-1));
                 StringsLiterals.pop();
             } else if(str=="~CHAR"){
                 tokens.push_back(Token(std::string(1, Chars.front()[1]), CHAR));

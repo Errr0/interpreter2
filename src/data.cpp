@@ -268,22 +268,27 @@ class pair{
 std::queue<std::string> StringsLiterals;
 std::queue<std::string> Chars;
 std::vector<std::vector<Token>> Arrays;
-std::vector<std::vector<Token>> Strings;
+//std::vector<std::vector<Token>> Strings;
 std::map<std::string,Scope> functions;
-std::vector<Scope> classes;
+std::map<std::string,Scope> classes;
 std::vector<Scope> objects;//to do garbage collection
+std::set<std::string> externalFunctions = {
+    "print",
+    "input"
+};
 
 void displayToken(Token token, int depth = 0){
     std::cout << std::string(depth * 5, ' ') << "(" << token.value << "," << displayTokenType(token.type) << "," << token.weight <<")\n";
-     if(token.type == ARRAY){
+     if(token.type == ARRAY || token.type == STRING){
         for(Token token : Arrays[token.weight]){
             displayToken(token, depth+1);
         }
-    } else if(token.type == STRING){
-        for(Token token : Strings[token.weight]){
-            displayToken(token, depth+1);
-        }
     }
+    //  else if(token.type == STRING){
+    //     for(Token token : Strings[token.weight]){
+    //         displayToken(token, depth+1);
+    //     }
+    // }
 }
 
 std::map<std::string, Token> GlobalNamespace = {

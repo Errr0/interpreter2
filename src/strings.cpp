@@ -18,7 +18,7 @@ std::string replaceBetween(std::string& str, const std::string& start, const std
         size_t endPos = str.find(end, startPos + start.length());
 
         if (endPos != std::string::npos) {
-            replacedPart = str.substr(startPos, (endPos + end.length()) - startPos);
+            replacedPart = str.substr(startPos+start.length(), endPos - startPos - end.length());
             str.replace(startPos, (endPos + end.length()) - startPos, replacement);
         }
     }
@@ -60,6 +60,37 @@ void splitString(std::string &str, std::vector<std::string> symbols, std::vector
     }
 }
 
+std::string processBackSlash(std::string input){
+    if(input[1]=='n'){
+        return std::string(0, '\n');
+    // } else if(input[1]=='n'){
+    //     return '\n';
+    // } else if(input[1]=='n'){
+    //     return '\n';
+    // } else if(input[1]=='n'){
+    //     return '\n';
+    // } else if(input[1]=='n'){
+    //     return '\n';
+    } else {
+        return std::string(1,input[1]);
+    }
+}
+
+void processChar(std::string string){
+    if(string.length()>=1){
+        if(string.length()==1){
+            Chars.push(string);
+        } else if(string.length()==2 && string[0]=='\\'){
+            Chars.push(processBackSlash(string));
+        } else{
+            std::cerr<<"char too long "<<string.length()<<":"<<string<<"\n";
+        }
+    } else {
+        std::cerr<<"char too short '"<<string<<"'\n";
+        Chars.push("");
+    }
+}
+
 void processInput(std::string& code){
     code+="\n";
     while(eraseBetween(code, "/*", "*/")); 
@@ -75,9 +106,11 @@ void processInput(std::string& code){
     stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
     while(stringLiteral!=""){
         //std::cout<<stringLiteral<<"\n";
-        Chars.push(stringLiteral);
-
+        //Chars.push(stringLiteral);
+        processChar(stringLiteral);
         stringLiteral = replaceBetween(code, "'", "'", " ~CHAR ");
     }
     //std::cout<<"\n"<<code<<"\n";
 }
+
+
