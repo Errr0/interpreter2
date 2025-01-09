@@ -8,7 +8,7 @@ class Scope{
     //Scope* parent;
     std::vector<std::vector<Token>> statementsTokens;
     std::vector<Scope*> scopes;
-
+int trash;
     std::stack<Token> operatorStack;
     std::stack<Node*> exprStack;
 
@@ -96,10 +96,17 @@ class Scope{
             scope->print(depth + 1);
         }
     }
-
+    
     void processOperator() { 
         if (operatorStack.empty() || exprStack.size() < 2) {
             std::cerr << "PARSER ERROR: Invalid operator/operand stack state!\n";
+            std::cerr << "  operStackSize: "<<operatorStack.size()<<"\n";
+            displayToken(operatorStack.top());
+            std::cerr <<"\n";
+            std::cerr << "  exprStackSize: "<<exprStack.size()<<"\n";
+            displayToken(exprStack.top()->token);
+            std::cerr <<"\n";
+            std::cin >> trash;
             return;
         }
         Token op = operatorStack.top();
@@ -178,8 +185,8 @@ class Scope{
                 skip--;
                 continue;
             }
-            //std::cout <<"parsing ";displayToken(token);
-            //std::cout <<"next ";displayToken(*(&token+1));
+            std::cout <<"parsing ";displayToken(token);
+            std::cout <<"next ";displayToken(*(&token+1));
                 if (token.type == SCOPE) {
                     Token scope = scopes[token.weight] -> interpret();
                     exprStack.push(new Node(scope));
@@ -204,6 +211,37 @@ class Scope{
                             }
                             skip = 1;
                         }
+                    }
+                } else if(token.type == KEYWORD){
+                    if(token.value == "if"){
+                        if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
+                            if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
+                                skip = 2;
+                                Token condition = scopes[(&token+1)->weight]->interpret();
+                                //bool isTrue = false;
+                                if(condition.type == INT && stoi(condition.value) > 0){//maybe to combine to one BIG if with ||
+                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                } else if(condition.type == FLOAT && stof(condition.value) > 0){
+                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                } else if(condition.type == CHAR && condition.value != ""){
+                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                } else if((condition.type == ARRAY || condition.type == STRING) && Arrays[condition.weight].size() > 0){
+                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                } else{
+                                }
+                                //scopes[(&token+1)->weight];
+                                //exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                
+                            } else{
+                                std::cerr << "IF ERROR: body doesent exist"<<displayTokenType(token.type)<<"\n";
+                                skip = 1;
+                                std::cin >> trash;
+                            }
+                        } else{
+                                std::cerr << "IF ERROR: condition doesent exist"<<displayTokenType(token.type)<<"\n";
+                                std::cin >> trash;
+                                //skip = 1;
+                            }
                     } else if((&token+1)->type == SCOPE && (&token+1)->value == "{}"){
                         scopes[(&token+1)->weight]->type = "class";
                         classes.insert({token.value, *scopes[(&token+1)->weight]});
@@ -215,7 +253,7 @@ class Scope{
                     exprStack.push(new Node(token));
                 } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
                     exprStack.push(new Node(token));
-                } else if (token.type == ARITMETIC_OPERATOR || token.type == ASSIGN || token.type == AMPERSAND || token.type == LOGICAL_OPERATOR) {
+                } else if (token.type == OPERATOR || token.type == ASSIGN || token.type == AMPERSAND) {
                     while (!operatorStack.empty() && 
                         operatorStack.top().type != BRACKET_OPEN &&
                         operatorStack.top().weight >= token.weight) {
@@ -224,6 +262,7 @@ class Scope{
                     operatorStack.push(token);
                 } else {
                     std::cerr << "PARSER ERROR: Unknown token type! "<<displayTokenType(token.type)<<"\n";
+                    std::cin >> trash;
                     return nullptr;
                 }
             }
@@ -297,7 +336,7 @@ class Scope{
                 }
             } else if(node->token.type == AMPERSAND){
                 return *findInNamespace(right.value);
-            } else if(node->token.type == ARITMETIC_OPERATOR){
+            } else if(node->token.type == OPERATOR){
                 if(left.type == IDENTIFIER){
                     left = *findInNamespace(left.value);
                     //std::cout<<"left value: ";displayToken(left);
@@ -309,7 +348,7 @@ class Scope{
                 if(node->token.value == "+"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), INT);
-                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
                         return Token(std::to_string(std::stof(left.value) + std::stof(right.value)), FLOAT);
                     } else if(left.type == NUL){
                         return right;
@@ -319,7 +358,7 @@ class Scope{
                 } else if(node->token.value == "-"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) - std::stoi(right.value)), INT);
-                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
                         return Token(std::to_string(std::stof(left.value) - std::stof(right.value)), FLOAT);
                     } else if(left.type == NUL){
                         return right;
@@ -329,7 +368,7 @@ class Scope{
                 } else if(node->token.value == "*"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(left.value) * std::stoi(right.value)), INT);
-                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
                         return Token(std::to_string(std::stof(left.value) * std::stof(right.value)), FLOAT);
                     } else if(left.type == NUL){
                         return right;
@@ -339,8 +378,8 @@ class Scope{
                 } else if(node->token.value == "/"){
                     if(left.type == INT && right.type == INT){
                         return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), INT);
-                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT)){
-                        return Token(std::to_string(std::stoi(right.value) != 0 ? std::stoi(left.value) / std::stoi(right.value) : 0), FLOAT);
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
+                        return Token(std::to_string(std::stof(right.value) != 0 ? std::stof(left.value) / std::stof(right.value) : 0), FLOAT);
                     } else if(left.type == NUL){
                         return right;
                     } else if(right.type == NUL){
@@ -353,6 +392,96 @@ class Scope{
                         return right;
                     } else if(right.type == NUL){
                         return left;
+                    }
+                } else if(node->token.value == "=="){
+                    if(left.value == right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == "!="){
+                    if(left.value != right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == ">"){
+                    if(left.value > right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == ">="){
+                    if(left.value >= right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == "<"){
+                    if(left.value < right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == "<="){
+                    if(left.value <= right.value){
+                        return Token("1", INT);
+                    } else{
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == "&&"){
+                    if(left.type == INT && right.type == INT){
+                        if(stoi(left.value) > 0 && stoi(right.value) > 0){
+                            return Token("1", INT);
+                        } else{
+                            return Token("0", INT);
+                        }
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
+                        if(stof(left.value) > 0 && stof(right.value) > 0){
+                            return Token("1", INT);
+                        } else{
+                            return Token("0", INT);
+                        }
+                    } else if(left.type == NUL){
+                        return Token("0", INT);
+                    } else if(right.type == NUL){
+                        return Token("0", INT);
+                    }
+                } else if(node->token.value == "||"){
+                    if(left.type == INT || right.type == INT){
+                        if(stoi(left.value) > 0 && stoi(right.value) > 0){
+                            return Token("1", INT);
+                        } else{
+                            return Token("0", INT);
+                        }
+                    } else if((left.type == FLOAT && right.type == FLOAT) || (left.type == FLOAT && right.type == INT) || (left.type == INT && right.type == FLOAT)){
+                        if(stof(left.value) > 0 || stof(right.value) > 0){
+                            return Token("1", INT);
+                        } else{
+                            return Token("0", INT);
+                        }
+                    } else if(left.type == NUL){
+                        if(right.type == INT || right.type == FLOAT){
+                            if(stoi(right.value) > 0){
+                                return Token("1", INT);
+                            } else{
+                                return Token("0", INT);
+                            }
+                        }
+                    } else if(right.type == NUL){
+                        if(left.type == INT || left.type == FLOAT){
+                            if(stoi(left.value) > 0){
+                                return Token("1", INT);
+                            } else{
+                                return Token("0", INT);
+                            }
+                        }
+                    }
+                } else if(node->token.value == "!"){
+                    if(left.type == INT){
+                        return Token(std::to_string(-stoi(right.value)), INT);
+                    } else if(left.type == FLOAT){
+                        return Token(std::to_string(-stof(right.value)), FLOAT);
                     }
                 }
             }

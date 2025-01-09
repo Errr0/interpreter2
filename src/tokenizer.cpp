@@ -16,7 +16,7 @@ void addNumberToken(std::string str, std::vector<Token> &tokens){
 
 void addMinus(std::vector<Token> &tokens){
     if(!tokens.empty()){
-        if(tokens.back().type == ARITMETIC_OPERATOR || tokens.back().type == ASSIGN){
+        if(tokens.back().type == OPERATOR || tokens.back().type == ASSIGN){
             tokens.push_back(Token("0", INT));
         }
         tokens.push_back(locked["~MINUS"]);

@@ -16,9 +16,9 @@ enum TokenType {
     END,
     ENDLINE,
     WHITESPACE,
-    ARITMETIC_OPERATOR,
+    OPERATOR,
     ASSIGN, 
-    LOGICAL_OPERATOR,
+    //OPERATOR,
     VOID,
     INT,
     FLOAT,
@@ -66,9 +66,9 @@ std::string displayTokenType(TokenType token) {
         case END: return "END";
         case ENDLINE: return "ENDLINE";
         case WHITESPACE: return "WHITESPACE";
-        case ARITMETIC_OPERATOR: return "ARITMETIC_OPERATOR";
+        case OPERATOR: return "OPERATOR";
         case ASSIGN: return "ASSIGN";
-        case LOGICAL_OPERATOR: return "LOGICAL_OPERATOR";
+        //case OPERATOR: return "OPERATOR";
         case VOID: return "VOID";
         case INT: return "INT";
         case FLOAT: return "FLOAT";
@@ -106,27 +106,27 @@ std::map<std::string, Token> locked = {
     {"~ENDLINE", Token("\n", ENDLINE)},
 
     {"~ASSIGN", Token("=", ASSIGN, -values[3])},
-    {"~ADDASSIGN", Token("+", ARITMETIC_OPERATOR, -values[1])},
-    {"~SUBASSIGN", Token("-", ARITMETIC_OPERATOR, -values[1])},
-    {"~MULASSIGN", Token("*", ARITMETIC_OPERATOR, -values[2])},
-    {"~DIVASSIGN", Token("/", ARITMETIC_OPERATOR, -values[2])},
-    {"~MODASSIGN", Token("%", ARITMETIC_OPERATOR, -values[2])},
+    {"~ADDASSIGN", Token("+", OPERATOR, -values[1])},
+    {"~SUBASSIGN", Token("-", OPERATOR, -values[1])},
+    {"~MULASSIGN", Token("*", OPERATOR, -values[2])},
+    {"~DIVASSIGN", Token("/", OPERATOR, -values[2])},
+    {"~MODASSIGN", Token("%", OPERATOR, -values[2])},
 
-    {"~PLUS", Token("+", ARITMETIC_OPERATOR, values[1])},
-    {"~MINUS", Token("-", ARITMETIC_OPERATOR, values[1])},
-    {"~ASTERISK", Token("*", ARITMETIC_OPERATOR, values[2])},
-    {"~SLASH", Token("/", ARITMETIC_OPERATOR, values[2])},
-    {"~MODULO", Token("%", ARITMETIC_OPERATOR, values[2])},
+    {"~PLUS", Token("+", OPERATOR, values[1])},
+    {"~MINUS", Token("-", OPERATOR, values[1])},
+    {"~ASTERISK", Token("*", OPERATOR, values[2])},
+    {"~SLASH", Token("/", OPERATOR, values[2])},
+    {"~MODULO", Token("%", OPERATOR, values[2])},
 
-    {"~NOT", Token("!", LOGICAL_OPERATOR)},
-    {"~AND", Token("&&", LOGICAL_OPERATOR)},
-    {"~OR", Token("||", LOGICAL_OPERATOR)},
-    {"~EQUAL", Token("==", LOGICAL_OPERATOR)},
-    {"~NOTEQUAL", Token("!=", LOGICAL_OPERATOR)},
-    {"~LESSTHAN", Token("<", LOGICAL_OPERATOR)},
-    {"~LESSEQUAL", Token("<=", LOGICAL_OPERATOR)},
-    {"~GREATERTHAN", Token(">", LOGICAL_OPERATOR)},
-    {"~GREATEREQUAL", Token(">=", LOGICAL_OPERATOR)},
+    {"~NOT", Token("!", OPERATOR)},
+    {"~AND", Token("&&", OPERATOR)},
+    {"~OR", Token("||", OPERATOR)},
+    {"~EQUAL", Token("==", OPERATOR)},
+    {"~NOTEQUAL", Token("!=", OPERATOR)},
+    {"~LESSTHAN", Token("<", OPERATOR)},
+    {"~LESSEQUAL", Token("<=", OPERATOR)},
+    {"~GREATERTHAN", Token(">", OPERATOR)},
+    {"~GREATEREQUAL", Token(">=", OPERATOR)},
 
     {"~BRACKETOPEN", Token("(", BRACKET_OPEN)},
     {"~BRACKETCLOSE", Token(")", BRACKET_CLOSE)},
@@ -144,7 +144,8 @@ std::map<std::string, Token> locked = {
     {"~DOT", Token(".", DOT)},
     {"~BACKSLASH", Token("\\", BACKSLASH)},
     {"~HASHTAG", Token("#", HASHTAG)},
-    {"~AMPERSAND", Token("&", AMPERSAND, values[5])},
+    {"~AMPERSAND", Token("&", AMPERSAND, -values[5])},
+    {"~AMPERSAND2", Token("&", AMPERSAND, values[5])},
 
     {"~SPACE", Token(" ", WHITESPACE)},
     {"~TAB", Token("\t", WHITESPACE)}
@@ -192,8 +193,61 @@ std::map<std::string, std::string> lockSymbol = {
     {"#", "~HASHTAG"},
     {" ", "~SPACE"},
     {"\t", "~TAB"},
+    {"&&", "~AMPERSAND2"},
     {"&", "~AMPERSAND"}
 };
+
+/*
+std::map<std::string, Token> locked = {
+    {"~END", Token(";", END)},
+    {"~ENDLINE", Token("\n", ENDLINE)},
+
+    {"~ASSIGN", Token("=", ASSIGN, -values[3])},
+    {"~ADDASSIGN", Token("+", OPERATOR, -values[1])},
+    {"~SUBASSIGN", Token("-", OPERATOR, -values[1])},
+    {"~MULASSIGN", Token("*", OPERATOR, -values[2])},
+    {"~DIVASSIGN", Token("/", OPERATOR, -values[2])},
+    {"~MODASSIGN", Token("%", OPERATOR, -values[2])},
+
+    {"~PLUS", Token("+", OPERATOR, values[1])},
+    {"~MINUS", Token("-", OPERATOR, values[1])},
+    {"~ASTERISK", Token("*", OPERATOR, values[2])},
+    {"~SLASH", Token("/", OPERATOR, values[2])},
+    {"~MODULO", Token("%", OPERATOR, values[2])},
+
+    {"~NOT", Token("!", OPERATOR, -values[5])},
+    {"~AND", Token("&&", OPERATOR, -values[7])},
+    {"~OR", Token("||", OPERATOR, -values[6])},
+    {"~EQUAL", Token("==", OPERATOR, -values[4])},
+    {"~NOTEQUAL", Token("!=", OPERATOR, -values[4])},
+    {"~LESSTHAN", Token("<", OPERATOR, -values[4])},
+    {"~LESSEQUAL", Token("<=", OPERATOR, -values[4])},
+    {"~GREATERTHAN", Token(">", OPERATOR, -values[4])},
+    {"~GREATEREQUAL", Token(">=", OPERATOR, -values[4])},
+
+    {"~BRACKETOPEN", Token("(", BRACKET_OPEN)},
+    {"~BRACKETCLOSE", Token(")", BRACKET_CLOSE)},
+    {"~SQUAREBRACKETOPEN", Token("[", BRACKET_OPEN)},
+    {"~SQUAREBRACKETCLOSE", Token("]", BRACKET_CLOSE)},
+    {"~CURLYBRACKETOPEN", Token("{", BRACKET_OPEN)},
+    {"~CURLYBRACKETCLOSE", Token("}", BRACKET_CLOSE)},
+
+    {"~APOSTROPHE", Token("\'", QUOTATION)},
+    {"~QUOTATION", Token("\"", QUOTATION)},
+
+    {"~QUESTIONMARK", Token("?", QUESTIONMARK)},
+    {"~COMMA", Token(",", COMMA)},
+    {"~COLON", Token(":", COLON)},
+    {"~DOT", Token(".", DOT)},
+    {"~BACKSLASH", Token("\\", BACKSLASH)},
+    {"~HASHTAG", Token("#", HASHTAG)},
+    {"~AMPERSAND", Token("&", AMPERSAND, -values[5])},
+    {"~AMPERSAND2", Token("&", AMPERSAND, values[5])},
+
+    {"~SPACE", Token(" ", WHITESPACE)},
+    {"~TAB", Token("\t", WHITESPACE)}
+};
+*/
 
 std::vector<std::string> operators = {
     "{",
@@ -205,6 +259,7 @@ std::vector<std::string> operators = {
     ";",
     ",",
     " ",
+    "&&",
     "==",
     "!=",
     "<=",
@@ -245,6 +300,7 @@ std::set<std::string> keywords = {
     "return",
     "if",
     "else",
+    //"elif",
     "for",
     "while",
     "break",
