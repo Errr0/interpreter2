@@ -1,4 +1,4 @@
-#include "interpreter.cpp" 
+#include "interpreter.cpp"  
 
 bool readfile(std::string filename, std::string &str){
     std::fstream file(filename, std::ios::in);

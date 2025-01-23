@@ -1,35 +1,29 @@
 #include "parser.cpp"
 
 class Scope{
-    public:
+    public: 
     Node* root;
+    Scope* parent;
     std::string type;
     std::vector<Token> tokens;
-    //Scope* parent;
+
     std::vector<std::vector<Token>> statementsTokens;
-    std::vector<Scope*> scopes;
-int trash;
+    std::vector<Scope> scopes;
+    int debug_trash;
     std::stack<Token> operatorStack;
     std::stack<Node*> exprStack;
 
     std::map<std::string, Token>  ScopeNamespace;
-    std::vector<std::map<std::string, Token>*> namespaces;
     
-    Scope(std::string type = "{}", std::vector<std::map<std::string, Token>*> namespaces = {}){//, Scope* parent = nullptr
+    Scope(std::string type = "{}", Scope* parent = nullptr, std::map<std::string, Token> ScopeNamespace = {}){
         this->type = type;
-        this->namespaces = namespaces;
-        this->namespaces.insert(this->namespaces.begin(), &ScopeNamespace);
-        // this->parent = parent;
+        this->ScopeNamespace = ScopeNamespace;
+        this->parent = parent;
     }
 
     ~Scope(){
-        for (Scope* scope : scopes) {
-            delete scope;
-        }
-        for (auto* namespaceMap : namespaces) {
-            delete namespaceMap;
-        }
         delete root;
+        delete parent;
     }
 
     void appendToken(Token token){
@@ -38,36 +32,21 @@ int trash;
 
     void makeStatement(std::string type){
         statementsTokens.push_back(tokens);
-        tokens.clear();
-        //statements.push_back(Token(type, STATEMENT, statementsTokens.size()-1));
-        
+        tokens.clear();        
     }
 
-    Scope* appendScope(const std::string& scopeType) {
-        scopes.push_back(new Scope(scopeType, namespaces));//, this
+    Scope appendScope(const std::string& scopeType, std::map<std::string, Token> ns = {}) {
+        scopes.push_back(Scope(scopeType, this, ns));
         tokens.push_back(Token(scopeType, SCOPE, scopes.size()-1));
         return scopes.back();
     }
 
-    void copy(Scope* second){
-        this->tokens = second->tokens;
-        this->statementsTokens = second->statementsTokens;
-        this->scopes = second->scopes;
-    }
-
-    void updateChildsNamespaces(){
-        for(Scope* scope : scopes){
-            scope->namespaces = this->namespaces;
-            scope->updateChildsNamespaces();
-        }
-    }
-
     void printNamespaces(int depth = 0){
-        for(std::map<std::string, Token>* ns : namespaces){
-            //std::cout<<std::string(depth * 5, ' ')<<"namespace:\n";
-            for(auto pair : *ns){
-                std::cout<<std::string(depth * 5, ' ')<<"("<<pair.first<<","<<"("<<pair.second.value<<","<<displayTokenType(pair.second.type)<<","<<pair.second.weight<<")"<<")\n";
-            }
+        for(auto pair : ScopeNamespace){
+            std::cout<<std::string(depth * 5, ' ')<<"("<<pair.first<<","<<"("<<pair.second.value<<","<<displayTokenType(pair.second.type)<<","<<pair.second.weight<<")"<<")\n";
+        }
+        if(parent){
+            parent->printNamespaces();
         }
     }
 
@@ -92,8 +71,8 @@ int trash;
             }
         }
         std::cout<<"\n";
-        for (const auto& scope : scopes) {
-            scope->print(depth + 1);
+        for (auto scope : scopes) {
+            scope.print(depth + 1);
         }
     }
     
@@ -106,7 +85,7 @@ int trash;
             std::cerr << "  exprStackSize: "<<exprStack.size()<<"\n";
             displayToken(exprStack.top()->token);
             std::cerr <<"\n";
-            std::cin >> trash;
+            // std::cin >> debug_trash;
             return;
         }
         Token op = operatorStack.top();
@@ -117,61 +96,6 @@ int trash;
         exprStack.pop();
 
         exprStack.push(new Node(op, left, right));
-    }
-
-    void updateArguments(Token arguments, std::vector<std::map<std::string, Token>*>& callNamespace){
-        //std::cout<<"\n\n////////////////////////////////////////////////////////////////////////////\n";  
-        if(findInNamespace("~~arguments_names~~")->type == ARRAY){
-            if(arguments.type == ARRAY){
-                for(size_t i = 0;i<std::min(Arrays[findInNamespace("~~arguments_names~~")->weight].size(), Arrays[arguments.weight].size());i++){
-                    //std::cout<<Arrays[findInNamespace("~~arguments_names~~")->weight][i].value<<"\n";
-                    //displayToken(((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]));
-                    //std::cout<<"\n";
-                    *findInNamespace(Arrays[findInNamespace("~~arguments_names~~")->weight][i].value) = ((Arrays[arguments.weight][i].type == IDENTIFIER)?*findInNamespace(Arrays[arguments.weight][i].value, &callNamespace):Arrays[arguments.weight][i]);
-                }
-            } else{
-                *findInNamespace(Arrays[findInNamespace("~~arguments_names~~")->weight][0].value) = (arguments.type == IDENTIFIER)?*findInNamespace(arguments.value, &callNamespace):arguments;
-            }
-        } else if(findInNamespace("~~arguments_names~~")->type == IDENTIFIER){
-            *findInNamespace(findInNamespace("~~arguments_names~~")->value) = (arguments.type == IDENTIFIER)?*findInNamespace(arguments.value, &callNamespace):arguments;
-        }      
-        
-        //displayToken(arguments);
-        //print();
-        //std::cout<<"\n\n\n";  
-        updateChildsNamespaces();
-        //print();
-        //std::cout<<"\n////////////////////////////////////////////////////////////////////////////\n\n"; 
-    }
-
-    Token callExternalFunction(std::string name, Token& arguments = nullToken){
-        if(name == "print"){
-            if(arguments.type == ARRAY){
-                for(Token arg : Arrays[arguments.weight]){
-                    std::cout<<arg.value;
-                }
-            } else{//if(arguments.type == STRING)
-                std::cout<<arguments.value;
-            }
-            return nullToken;
-        } else if(name == "input"){
-            callExternalFunction("print", arguments);
-            std::string input;
-            std::cin>>input;
-            std::vector<Token> string;
-            for(char c: input){
-                string.push_back(Token(std::string(1, c), CHAR));
-            }
-            Arrays.push_back(string);
-            return Token(input, STRING, Arrays.size()-1);
-        } else if(name == ""){
-
-        } else if(name == ""){
-
-        } else if(name == ""){
-
-        }
-        return nullToken;
     }
     
     Node* parse(std::vector<Token> statement){
@@ -185,73 +109,77 @@ int trash;
                 skip--;
                 continue;
             }
-            std::cout <<"parsing ";displayToken(token);
-            std::cout <<"next ";displayToken(*(&token+1));
+            // std::cout <<"parsing ";displayToken(token);
+            // std::cout <<"next ";displayToken(*(&token+1));
                 if (token.type == SCOPE) {
-                    Token scope = scopes[token.weight] -> interpret();
+                    Token scope = scopes[token.weight].interpret();
                     exprStack.push(new Node(scope));
                 } else if (token.type == IDENTIFIER) {
-                    if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
-                        if(externalFunctions.find(token.value) != externalFunctions.end()){
-                            callExternalFunction(token.value);
-                            skip=1;
-                        } else 
-                        if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
-                            scopes[(&token+1)->weight]->ScopeNamespace["~~arguments_names~~"] = scopes[(&token+1)->weight]->interpret();
-                            scopes[(&token+1)->weight]->copy(scopes[(&token+2)->weight]);
-                            scopes[(&token+1)->weight]->type = "function";
-                            functions[token.value] = *scopes[(&token+1)->weight];
-                            skip = 2;
-                        } else{
-                            if(functions.count(token.value)){
-                                functions[token.value].updateArguments(scopes[(&token+1)->weight]->interpret(), scopes[(&token+1)->weight]->namespaces);
-                                exprStack.push(new Node(functions[token.value].interpret()));
-                            } else{
-                                std::cerr << "FUNCTION ERROR: function doesent exist"<<displayTokenType(token.type)<<"\n";
-                            }
-                            skip = 1;
-                        }
+                    if((&token+1)->type == SCOPE && (&token+1)->value == "()"){
+                        
                     }
-                } else if(token.type == KEYWORD){
-                    if(token.value == "if"){
-                        if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
-                            if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
-                                skip = 2;
-                                Token condition = scopes[(&token+1)->weight]->interpret();
-                                //bool isTrue = false;
-                                if(condition.type == INT && stoi(condition.value) > 0){//maybe to combine to one BIG if with ||
-                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
-                                } else if(condition.type == FLOAT && stof(condition.value) > 0){
-                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
-                                } else if(condition.type == CHAR && condition.value != ""){
-                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
-                                } else if((condition.type == ARRAY || condition.type == STRING) && Arrays[condition.weight].size() > 0){
-                                    exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
-                                } else{
-                                }
-                                //scopes[(&token+1)->weight];
-                                //exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
-                                
-                            } else{
-                                std::cerr << "IF ERROR: body doesent exist"<<displayTokenType(token.type)<<"\n";
-                                skip = 1;
-                                std::cin >> trash;
-                            }
-                        } else{
-                                std::cerr << "IF ERROR: condition doesent exist"<<displayTokenType(token.type)<<"\n";
-                                std::cin >> trash;
-                                //skip = 1;
-                            }
-                    } else if((&token+1)->type == SCOPE && (&token+1)->value == "{}"){
-                        scopes[(&token+1)->weight]->type = "class";
-                        classes.insert({token.value, *scopes[(&token+1)->weight]});
-                        skip=1;
-                    } else{
-                        exprStack.push(new Node(token));
-                    }
-                } else if (token.type == ARRAY){
                     exprStack.push(new Node(token));
-                } else if (token.type == INT || token.type == FLOAT || token.type == STRING || token.type == CHAR) {
+                    // if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
+                    //     if(externalFunctions.find(token.value) != externalFunctions.end()){
+                    //         callExternalFunction(token.value);
+                    //         skip=1;
+                    //     } else 
+                    //     if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
+                    //         scopes[(&token+1)->weight].ScopeNamespace["~~arguments_names~~"] = scopes[(&token+1)->weight]->interpret();
+                    //         scopes[(&token+1)->weight].copy(scopes[(&token+2)->weight]);
+                    //         scopes[(&token+1)->weight].type = "function";
+                    //         functions[token.value] = *scopes[(&token+1)->weight];
+                    //         skip = 2;
+                    //     } else{
+                    //         if(functions.count(token.value)){
+                    //             functions[token.value].updateArguments(scopes[(&token+1)->weight]->interpret(), scopes[(&token+1)->weight]->namespaces);
+                    //             exprStack.push(new Node(functions[token.value].interpret()));
+                    //         } else{
+                    //             std::cerr << "FUNCTION ERROR: function doesent exist"<<displayTokenType(token.type)<<"\n";
+                    //         }
+                    //         skip = 1;
+                    //     }
+                    // }
+                // } else if(token.type == KEYWORD){
+                //     if(token.value == "if"){
+                //         if((&token+1)->type == SCOPE && (&token+1)->value == "()"){ 
+                //             if((&token+2)->type == SCOPE && (&token+2)->value == "{}"){
+                //                 skip = 2;
+                //                 Token condition = scopes[(&token+1)->weight]->interpret();
+                //                 //bool isTrue = false;
+                //                 if(condition.type == INT && stoi(condition.value) > 0){//maybe to combine to one BIG if with ||
+                //                     exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                //                 } else if(condition.type == FLOAT && stof(condition.value) > 0){
+                //                     exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                //                 } else if(condition.type == CHAR && condition.value != ""){
+                //                     exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                //                 } else if((condition.type == ARRAY || condition.type == STRING) && Arrays[condition.weight].size() > 0){
+                //                     exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                //                 } else{
+                //                 }
+                //                 //scopes[(&token+1)->weight];
+                //                 //exprStack.push(new Node(scopes[(&token+2)->weight]->interpret()));
+                                
+                //             } else{
+                //                 std::cerr << "IF ERROR: body doesent exist"<<displayTokenType(token.type)<<"\n";
+                //                 skip = 1;
+                //                 std::cin >> debug_trash;
+                //             }
+                //         } else{
+                //                 std::cerr << "IF ERROR: condition doesent exist"<<displayTokenType(token.type)<<"\n";
+                //                 std::cin >> debug_trash;
+                //                 //skip = 1;
+                //             }
+                //     } else if((&token+1)->type == SCOPE && (&token+1)->value == "{}"){
+                //         scopes[(&token+1)->weight]->type = "class";
+                //         classes.insert({token.value, *scopes[(&token+1)->weight]});
+                //         skip=1;
+                //     } else{
+                //         exprStack.push(new Node(token));
+                //     }
+                } else if (token.type == ARRAY || token.type == STRING){
+                    exprStack.push(new Node(token));
+                } else if (token.type == INT || token.type == FLOAT || token.type == CHAR) {
                     exprStack.push(new Node(token));
                 } else if (token.type == OPERATOR || token.type == ASSIGN || token.type == AMPERSAND) {
                     while (!operatorStack.empty() && 
@@ -262,12 +190,10 @@ int trash;
                     operatorStack.push(token);
                 } else {
                     std::cerr << "PARSER ERROR: Unknown token type! "<<displayTokenType(token.type)<<"\n";
-                    std::cin >> trash;
+                    //std::cin >> debug_trash;
                     return nullptr;
                 }
             }
-        //std::cout<<"D\n";
-        // Process remaining operators
         while (!operatorStack.empty()) {
             processOperator();
         }
@@ -281,35 +207,36 @@ int trash;
         }
         Node* return_value = exprStack.top();
         exprStack.pop();
-        //std::cout<<"U\n";
         return return_value;
     }
     
-    Token* findInNamespace(std::string key, std::vector<std::map<std::string, Token>*>* NS = nullptr){
-        if(NS){
-            for(std::map<std::string, Token>* ns : *NS){
-                if((*ns).count(key)){
-                    return &(*ns)[key];
-                }
-            }
-        } else{
-            for(std::map<std::string, Token>* ns : namespaces){
-                if((*ns).count(key)){
-                    return &(*ns)[key];
-                }
-            }
+    Token findInNamespace(std::string key){
+        if(ScopeNamespace.count(key)){
+            return ScopeNamespace[key];
         }
-        return &nullToken;
+        if(parent){
+            return parent->findInNamespace(key);
+        }
+        return Token("null", NUL);
+    }
+
+    bool UpdateInNamespace(std::string key, Token newValue = Token("null", NUL)){
+        if(ScopeNamespace.count(key)){
+            ScopeNamespace[key] = newValue;
+            return true;
+        }
+        if(parent){
+            return parent->UpdateInNamespace(key, newValue);
+        }
+        return false;
     }
 
     Token interpretTree(Node* node, int depth = 0, bool retrurning = false, Token retrurningValue = Token()){
         //std::cout<<"interpreting: ";displayToken(node->token.value);
         if(node->token.type == IDENTIFIER){
-            if(findInNamespace(node->token.value) == &nullToken){
-                ScopeNamespace.insert({node->token.value, Token("null", NUL)});
-            }
+            ScopeNamespace.insert({node->token.value, Token("null", NUL)});
             return node->token;
-        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == STRING || node->token.type == CHAR || node->token.type == ARRAY){
+        } else if(node->token.type == INT || node->token.type == FLOAT || node->token.type == CHAR){// || node->token.type == ARRAY || node->token.type == STRING
             return node->token;
         } else{
             Token right, left;
@@ -329,20 +256,20 @@ int trash;
             }
             if(node->token.type == ASSIGN){
                 if(left.type == IDENTIFIER){
-                    *findInNamespace(left.value) = (right.type == IDENTIFIER) ? *findInNamespace(right.value) : right;
+                    UpdateInNamespace(left.value, (right.type == IDENTIFIER) ? findInNamespace(right.value) : right);// = (right.type == IDENTIFIER) ? findInNamespace(right.value) : right;
                     return left;
                 } else{
                     std::cout<<"assigning error\n";
                 }
             } else if(node->token.type == AMPERSAND){
-                return *findInNamespace(right.value);
+                return findInNamespace(right.value);
             } else if(node->token.type == OPERATOR){
                 if(left.type == IDENTIFIER){
-                    left = *findInNamespace(left.value);
+                    left = findInNamespace(left.value);
                     //std::cout<<"left value: ";displayToken(left);
                 }
                 if(right.type == IDENTIFIER){
-                    right = *findInNamespace(right.value);
+                    right = findInNamespace(right.value);
                     //std::cout<<"right value: ";displayToken(right);
                 }
                 if(node->token.value == "+"){

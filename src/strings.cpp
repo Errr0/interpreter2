@@ -1,4 +1,4 @@
-#include "checks.cpp"
+#include "checks.cpp" 
 
 bool eraseBetween(std::string& str, const std::string& start, const std::string& end) {
     size_t startPos = str.find(start);  // Find the starting substring

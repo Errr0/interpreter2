@@ -1,8 +1,9 @@
-#include "scopes.cpp"
+#include "scopes.cpp" 
+
+Scope program = Scope("{}", nullptr, BuildInNamespace);
 
 Scope makeScopeTree(std::vector<Token>& tokens) {
-    Scope root("{}", BuildInNamespaces);
-    root.ScopeNamespace = GlobalNamespace;
+    Scope root("{}", &program);
     Scope* currentScope = &root;
     std::stack<Scope*> scopeStack;
     for (const Token& token : tokens) {
@@ -16,9 +17,9 @@ Scope makeScopeTree(std::vector<Token>& tokens) {
             else if (token.value == "(") type = "()";
             else if (token.value == "[") type = "[]";
 
-            Scope* newScope = currentScope->appendScope(type);
+            Scope newScope = currentScope->appendScope(type);
             scopeStack.push(currentScope);
-            currentScope = newScope;
+            currentScope = &newScope;
         } else if (token.type == BRACKET_CLOSE) {
             char expectedClose = currentScope->type[1];
             if (token.value[0] != expectedClose) {

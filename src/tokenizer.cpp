@@ -1,4 +1,4 @@
-#include "strings.cpp"
+#include "strings.cpp" 
 
 void addNumberToken(std::string str, std::vector<Token> &tokens){
     if(tokens.size()>=2){
@@ -18,8 +18,11 @@ void addMinus(std::vector<Token> &tokens){
     if(!tokens.empty()){
         if(tokens.back().type == OPERATOR || tokens.back().type == ASSIGN){
             tokens.push_back(Token("0", INT));
-        }
-        tokens.push_back(locked["~MINUS"]);
+            tokens.push_back(Token("-", OPERATOR, values[3]));
+
+        } else{
+            tokens.push_back(Token("-", OPERATOR, values[1]));
+        }       
     }
 }
 
@@ -58,21 +61,12 @@ void tokenize(std::vector<std::string> arr, std::vector<Token> &tokens){
                 tokens.push_back(Token("1", INT));
                 tokens.insert(tokens.begin()+temp, locked["~BRACKETOPEN"]);
                 tokens.push_back(locked["~BRACKETCLOSE"]);
-            } else if(str=="~ADDASSIGN"){
-                addAssign(locked["~ADDASSIGN"], tokens);
-            } else if(str=="~SUBASSIGN"){
-                addAssign(locked["~SUBASSIGN"], tokens);
-            } else if(str=="~MULASSIGN"){
-                addAssign(locked["~MULASSIGN"], tokens);
-            } else if(str=="~DIVASSIGN"){
-                addAssign(locked["~DIVASSIGN"], tokens);
-            } else if(str=="~MODASSIGN"){
-                addAssign(locked["~MODASSIGN"], tokens);
+            } else if(str.substr(3, 6) == "ASSIGN"){
+                addAssign(locked[str], tokens);
             } else if(str=="~MINUS"){
                 addMinus(tokens);
-            } else if(str=="~AMPERSAND"){
-                addNumberToken("0", tokens);
-                tokens.push_back(locked[str]);
+            // } else if(str=="~AMPERSAND"){
+            //     tokens.push_back(locked[str]);
             } else if(str=="~SPACE" || str=="~TAB" || str=="~ENDLINE"){
                 continue;
             } else{

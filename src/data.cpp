@@ -4,7 +4,7 @@
 #include <string>
 #include <vector> 
 #include <array>
-#include <map>
+#include <map> 
 #include <regex> 
 #include <algorithm>
 #include <set>
@@ -52,10 +52,12 @@ class Token{
     std::string value;
     enum TokenType type;
     int weight;
-    Token(std::string value = ";",enum TokenType type = END, unsigned int weight = 0){
+    void* pointer;
+    Token(std::string value = ";",enum TokenType type = END, unsigned int weight = 0, void* pointer = nullptr){
         this -> value = value;
         this -> type = type;
         this -> weight = weight;
+        this -> pointer = pointer;
     }
 };
 
@@ -144,8 +146,7 @@ std::map<std::string, Token> locked = {
     {"~DOT", Token(".", DOT)},
     {"~BACKSLASH", Token("\\", BACKSLASH)},
     {"~HASHTAG", Token("#", HASHTAG)},
-    {"~AMPERSAND", Token("&", AMPERSAND, -values[5])},
-    {"~AMPERSAND2", Token("&", AMPERSAND, values[5])},
+    {"~AMPERSAND", Token("&", AMPERSAND, values[5])},
 
     {"~SPACE", Token(" ", WHITESPACE)},
     {"~TAB", Token("\t", WHITESPACE)}
@@ -347,15 +348,6 @@ void displayToken(Token token, int depth = 0){
     // }
 }
 
-std::map<std::string, Token> GlobalNamespace = {
-    //{"", Token("0", INT)}
-    //{"a", Token("2", INT)}
-};
-
 std::map<std::string, Token> BuildInNamespace = {
     {"PI", Token("3.14", FLOAT)}
-};
-
-std::vector<std::map<std::string, Token>*> BuildInNamespaces = {
-    &BuildInNamespace
 };
