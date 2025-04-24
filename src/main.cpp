@@ -1,4 +1,18 @@
 #include "interpreter.cpp"  
+#include "lexer.cpp"
+#include <iostream>
+#include <fstream> 
+#include <sstream>
+#include <string>
+// #include <vector> 
+// #include <array>
+// #include <map> 
+// #include <regex> 
+// #include <algorithm>
+// #include <set>
+// #include <memory>
+// #include <stack>
+// #include <queue>
 
 bool readfile(std::string filename, std::string &str){
     std::fstream file(filename, std::ios::in);
@@ -20,8 +34,11 @@ int main(int argc, char* argv[]){
     }
     std::string code;
     if(!readfile(argv[1], code)) return 2;
-    interpreter(code);
-    std::cout<<"DONE";
+    std::cout << code << "\n";
+    Token token(1, TokenType::OPERATOR, 0);
+    token.print();
+    //interpreter(code);
+    std::cout<<"\nDONE";
     return 0;
 }
 
