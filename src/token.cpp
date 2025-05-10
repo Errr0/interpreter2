@@ -1,6 +1,4 @@
-#include <iostream>
 #include <string>
-#include <any>
 
 enum TokenType {
     NUL,
@@ -8,22 +6,38 @@ enum TokenType {
 
 };
 
-
-
 class Token{
-    std::any value; // std::variant<int, double, std::string>
+    int value_i;
+    double value_d;
+    std::string value_s;
     enum TokenType type;
+    void *ptr;
     int priority;
     public:
-    Token(std::any value,enum TokenType type = TokenType::NUL, int priority = 0){
-        this->value = value;
+    Token(int value_i = 0, enum TokenType type = TokenType::NUL, int priority = 0, void *ptr = nullptr){
+        this->value_i = value_i;
+        this->value_d = 0.0;
+        this->value_s = "";
         this->type = type;
+        this->ptr = ptr;
         this->priority = priority;
     }
 
-    void print(){
-        std::cout << this->value.type().name() << "\n";
-        
-        std::cout << "value: " << std::any_cast<std::string>(this->value) << " type: " << this->type << " priority: " << this->priority << "\n";
+    Token(double value_d = 0.0, enum TokenType type = TokenType::NUL, int priority = 0, void *ptr = nullptr){
+        this->value_i = 0;
+        this->value_d = value_d;
+        this->value_s = "";
+        this->type = type;
+        this->ptr = ptr;
+        this->priority = priority;
+    }
+
+    Token(std::string value_s = "", enum TokenType type = TokenType::NUL, int priority = 0, void *ptr = nullptr){
+        this->value_i = 0;
+        this->value_d = 0.0;
+        this->value_s = value_s;
+        this->type = type;
+        this->ptr = ptr;
+        this->priority = priority;
     }
 };
