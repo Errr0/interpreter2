@@ -1,5 +1,8 @@
-#include "interpreter.cpp"  
+//#include "interpreter.cpp"  
 #include "lexer.cpp"
+#include "parser.cpp"
+//#include "analyzer.cpp"
+#include "executor.cpp"
 #include <iostream>
 #include <fstream> 
 #include <sstream>
@@ -35,8 +38,18 @@ int main(int argc, char* argv[]){
     std::string code;
     if(!readfile(argv[1], code)) return 2;
     std::cout << code << "\n";
-    Token token(1, TokenType::OPERATOR, 0);
-    token.print();
+    //tokens = lexer(code)
+
+    //AST = parser(tokens)
+
+    //better AST = analyzer(AST) //optional
+
+    //something to break AST to list of tokens(instructions for executor)
+
+    //executor.run(queque of tokens)
+
+    //Token token(1, TokenType::OPERATOR, 0);
+    //token.print();
     //interpreter(code);
     std::cout<<"\nDONE";
     return 0;
