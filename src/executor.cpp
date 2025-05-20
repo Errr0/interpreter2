@@ -1,6 +1,7 @@
 #include "token.cpp"
 #include <string>
 #include <queue>
+#include <iostream>
 
 class Executor{
     //std::queue<Token> queue;
@@ -21,9 +22,17 @@ class Executor{
                 case Actions::ADD:
 
                     break;
+                case Actions::PRINT:
+                    std::cout<<*static_cast<std::string>(token.args[0]);
+                    break; 
                 case Actions::FOR:
                     int times = *static_cast<int*>(token.args[0]);
                     for(int i = 0; i < times ; i++){
+                        this->run(*static_cast<std::queue<Token>*>(token.args[1]));
+                    }
+                    break;
+                case Actions::WHILE:
+                    while(*static_cast<bool*>(token.args[0])){
                         this->run(*static_cast<std::queue<Token>*>(token.args[1]));
                     }
                     break;
@@ -36,6 +45,7 @@ class Executor{
                         }
                     }
                     break;
+                
                 default:
                     break;
             }

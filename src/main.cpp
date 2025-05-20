@@ -1,8 +1,8 @@
 //#include "interpreter.cpp"  
-#include "lexer.cpp"
-#include "parser.cpp"
+//#include "lexer.cpp"
+//#include "parser.cpp"
 //#include "analyzer.cpp"
-#include "executor.cpp"
+//#include "executor.cpp"
 #include <iostream>
 #include <fstream> 
 #include <sstream>
@@ -16,6 +16,8 @@
 // #include <memory>
 // #include <stack>
 // #include <queue>
+
+#include "vector.cpp"
 
 bool readfile(std::string filename, std::string &str){
     std::fstream file(filename, std::ios::in);
@@ -38,6 +40,17 @@ int main(int argc, char* argv[]){
     std::string code;
     if(!readfile(argv[1], code)) return 2;
     std::cout << code << "\n";
+
+    vector<char> a;
+    a.add('1');
+    a.add('a');
+    a.add('a');
+    a.add('a');
+    a.add('a');
+    a.add('a');
+    a.add('a');
+    std::cout<<"\n\n"<<a[1];
+    std::cout<<a[0];
     //tokens = lexer(code)
 
     //AST = parser(tokens)

@@ -6,7 +6,9 @@ enum Actions {
     ADD,
     VARIABLE,
     FOR,
-    IF
+    WHILE,
+    IF,
+    PRINT
 
 };
 
