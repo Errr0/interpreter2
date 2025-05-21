@@ -1,8 +1,1 @@
 
-class string{
-    
-    public:
-    string(){
-
-    }
-};

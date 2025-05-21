@@ -23,7 +23,7 @@ class Executor{
 
                     break;
                 case Actions::PRINT:
-                    std::cout<<*static_cast<std::string>(token.args[0]);
+                    std::cout<<*static_cast<std::string*>(token.args[0]);
                     break; 
                 case Actions::FOR:
                     int times = *static_cast<int*>(token.args[0]);
@@ -45,7 +45,6 @@ class Executor{
                         }
                     }
                     break;
-                
                 default:
                     break;
             }

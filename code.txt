@@ -1,1 +1,15 @@
-a = 2+2-2*-2
+a = 0
+if(a>0){
+    print(a)
+}
+
+b = 4+2
+
+while(b>0){
+    print(b)
+    b-=1
+}
+
+for(2){
+    print(11)
+}

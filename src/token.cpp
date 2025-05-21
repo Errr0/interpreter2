@@ -2,7 +2,10 @@
 #include <vector>
 
 enum Actions {
+    PROCESSING,
     END,
+    NUMBER,
+    IDENTIFIER,
     ADD,
     VARIABLE,
     FOR,
@@ -17,7 +20,7 @@ class Token{
     enum Actions action;
     std::vector<void*> args;
     int priority;
-    Token(enum Actions action = Actions::END, std::vector<void*> args, int priority = 0){
+    Token(enum Actions action = Actions::END, std::vector<void*> args = {}, int priority = 0){
         this->action = action;
         this->args = args;
         this->priority = priority;
