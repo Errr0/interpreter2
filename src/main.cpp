@@ -39,9 +39,9 @@ int main(int argc, char* argv[]){
     }
     std::string code;
     if(!readfile(argv[1], code)) return 2;
-    // std::cout << code << "\n";
+    std::cout << code << "\n";
 
-    Lexer lexer(code);
+    // Lexer lexer(code);
     //tokens = lexer(code)
 
     //AST = parser(tokens)
